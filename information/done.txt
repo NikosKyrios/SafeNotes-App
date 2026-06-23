@@ -1,0 +1,51 @@
+app/
+✅ Main.java - Entry point 
+
+config/
+✅ AppConstants.java - Complete with all security constants
+
+utils/gui/
+✅ ViewLoader.java - Complete FXML loading utility
+
+utils/security/
+✅ SecureRandomGenerator.java
+
+views/fxml/auth/
+✅ login.fxml - Login screen layout
+✅ register.fxml - Registration screen layout
+
+views/css/
+✅ auth-styles.css - Authentication screens styling
+✅ styles.css - Global styles 
+
+models/enums/
+✅ EncryptionAlgorithm.java
+
+models/dto/
+✅ LoginRequest.java
+✅ RegistrationRequest.java
+✅ LoginResult.java
+✅ RegistrationResult.java
+
+models/domain/
+✅ TypingData.java
+✅ TypingProfile.java
+✅ User.java
+
+services/encryption/
+✅ EncryptionService.java 
+✅ PasswordHasher.java
+
+services/auth/
+✅ AuthenticationService.java
+✅ AuthenticationServiceImpl.java
+
+exceptions/
+✅ EncryptionException.java
+✅ HashingException.java
+✅ AuthException.java
+✅ StorageException.java
+
+repositories/
+✅ UserRepository.java (interface)
+✅ UserRepositoryImpl.java

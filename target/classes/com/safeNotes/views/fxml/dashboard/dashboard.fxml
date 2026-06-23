@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets.*?>
+
+<BorderPane xmlns = "http://javafx.com/javafx"
+            xmlns:fx = "http://javafx.com/fxml"
+            fx:controller = "com.safenotes.controllers.dashboard.DashboardController"
+            stylesheets = "@../../css/style.css"
+            prefWidth = "1000" prefHeight = "700">
+    <!--Top Bar-->
+    <top>
+        <HBox styleClass = "top-bar" spacing = "20" alignment = "CENTER_LEFT">
+            <!--App logo or title-->
+            <HBox alignment = "CENTER_LEFT" spacing = "10">
+                <Label text = "🔐" styleClass = "app-icon"/>
+                <Vbox spacing = "2">
+                    <Label text = "SafeNotes" styleClass = "app-title"/>
+                    <Label fx:id = "welcomeLabel" text = "Welcome, User" styleClass = "welcome-text"/>
+                </Vbox>
+            </Hbox>
+
+            <Region HBox.hgrow = "ALWAYS"/>
+
+            <!--Search Bar-->
+            <TextField fx:id = "searchField" promptText = "Search..." styleClass = "search-field" prefWidth = "250"/>
+
+            <!--User Menu-->
+            <MenuButton text = "Menu" styleClass = "menu-button">
+                <items>
+                    <MenuItem text = "Security Settings" onAction = "#onSecuritySettings"/>
+                    <MenuItem text = "Account Settings" onAction = "#onAccountSettings"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem text = "Lock App" onAction = "#onlockApp"/>
+                    <MenuItem text = "Logout" onAction = "#onLogout"/>
+                </items>
+            </MenuButton>
+        </HBox>
+    </top>
+
+    <!-- Left Sidebar - Notes List -->
+    <left>
+        <VBox prefWidth="300" styleClass="sidebar">
+            <!-- Notes Header -->
+            <HBox alignment="CENTER" styleClass="sidebar-header">
+                <Label text="Your Notes" styleClass="sidebar-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="+" onAction="#onCreateNewNote" styleClass="icon-button" 
+                        tooltip="Create new note"/>
+                <Button text="🔄" onAction="#onRefresh" styleClass="icon-button"
+                        tooltip="Refresh list"/>
+            </HBox>
+            
+            <!-- Notes List -->
+            <ListView fx:id="notesListView" styleClass="notes-list" VBox.vgrow="ALWAYS"/>
+            
+            <!-- Filter Buttons -->
+            <HBox spacing="10" alignment="CENTER" styleClass="filter-box">
+                <ToggleButton text="All" toggleGroup="$filterGroup" selected="true"/>
+                <ToggleButton text="🔒 Locked" toggleGroup="$filterGroup"/>
+                <ToggleButton text="⭐ Starred" toggleGroup="$filterGroup"/>
+            </HBox>
+        </VBox>
+    </left>
+    
+    <!-- Main Content Area -->
+    <center>
+        <StackPane fx:id="contentPane" styleClass="content-pane">
+            <!-- Welcome/Empty State -->
+            <VBox fx:id="welcomePane" alignment="CENTER" spacing="20" visible="true">
+                <Label text="📝" styleClass="empty-state-icon"/>
+                <Label text="Welcome to SafeNotes" styleClass="empty-state-title"/>
+                <Label text="Select a note from the list or create a new one" 
+                       styleClass="empty-state-subtitle"/>
+                <Button text="Create Your First Note" onAction="#onCreateNewNote" 
+                        styleClass="primary-button"/>
+                
+                <!-- Security Status -->
+                <VBox alignment="CENTER" spacing="10" styleClass="security-info-box">
+                    <Label text="🔒 Security Status" styleClass="security-info-title"/>
+                    <HBox spacing="20">
+                        <VBox alignment="CENTER" spacing="5">
+                            <Label text="0" styleClass="security-stat-number"/>
+                            <Label text="Total Notes" styleClass="security-stat-label"/>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="5">
+                            <Label text="0" styleClass="security-stat-number"/>
+                            <Label text="Locked Notes" styleClass="security-stat-label"/>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="5">
+                            <Label text="0" styleClass="security-stat-number"/>
+                            <Label text="Blurred Notes" styleClass="security-stat-label"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </StackPane>
+    </center>
+    
+    <!-- Bottom Status Bar -->
+    <bottom>
+        <HBox styleClass="status-bar" spacing="20">
+            <Label fx:id="statusLabel" text="Ready" styleClass="status-text"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="securityStatusLabel" text="🔓 Unlocked" styleClass="security-status"/>
+            <Label fx:id="lastSyncLabel" text="Last sync: Never" styleClass="sync-status"/>
+        </HBox>
+    </bottom>
+</BorderPane>

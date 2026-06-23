@@ -1,0 +1,250 @@
+SafeNotes 🔐
+Secure Note-Taking Application with Advanced Security Features
+
+📋 Overview
+SafeNotes is a desktop application for storing encrypted notes with multiple layers of security, including password protection, keystroke dynamics analysis, and optional two-factor authentication. All data is encrypted locally before storage.
+
+✨ Key Features
+Local Encryption: AES-256-GCM encryption for all notes
+
+Keystroke Biometrics: Behavioral authentication based on typing patterns
+
+Password Strength Analysis: Real-time password validation and scoring
+
+Security Monitoring: Alerts for suspicious login attempts
+
+Cross-Platform: Works on Windows, macOS, and Linux
+
+🔐 Security Architecture
+Encryption & Hashing
+Algorithm: AES-256-GCM with 128-bit authentication tags
+
+Key Derivation: Argon2id with 64MB memory usage
+
+Salting: 16-byte random salts for each password
+
+IV Generation: 12-byte random initialization vectors for GCM
+
+Why These Choices?
+AES/GCM/NoPadding: Provides both confidentiality and authentication in one operation
+
+Argon2: Memory-hard algorithm resistant to GPU/ASIC attacks
+
+256-bit keys: Future-proof against quantum computing advances
+
+GCM mode: Prevents padding oracle attacks and provides authentication
+
+🏗️ Project Structure
+text
+src/main/java/com/safenotes/
+├── app/
+│   ├── Main.java                    # Entry point
+│   └── SafeNotesApp.java            # JavaFX application class
+├── config/
+│   └── AppConstants.java            # Security and application constants
+├── controllers/auth/
+│   ├── LoginController.java         # Login screen logic
+│   └── RegisterController.java      # Registration logic
+├── utils/gui/
+│   └── ViewLoader.java              # FXML loading utilities
+└── views/
+    ├── fxml/auth/                   # UI layout files
+    └── css/                         # Stylesheets
+
+🛠️ Technical Implementation
+JavaFX & FXML Design
+Why Use FXML?
+
+xml
+<!-- Example from login.fxml -->
+<PasswordField fx:id="passwordField" promptText="Enter password"/>
+Separation of Concerns: UI layout separate from business logic
+
+Tool Support: Can be edited with Scene Builder
+
+Maintainability: Clear hierarchy of UI components
+
+Reusability: Templates can be reused across views
+
+ViewLoader Utility
+
+java
+// Why load FXML as streams?
+new Image(getClass().getResourceAsStream("/images/icons/lock.png"))
+// Resources are packaged inside JAR files, not as separate files
+Security Implementation Details
+Password Strength Calculation
+
+java
+// Why Math.min()?
+double progress = Math.min(elapsed / 5000, 1.0);
+// Caps progress at 100% even if user types longer than 5 seconds
+Input Validation
+
+java
+// Real-time username validation
+usernameField.textProperty().addListener((obs, oldVal, newVal) -> {
+    if (newVal.length() < 3) {
+        usernameField.setStyle("-fx-border-color: #ff4444;");
+    }
+});
+// Provides immediate visual feedback to users
+Keystroke Timing Analysis
+
+java
+// Measures typing speed for biometric analysis
+passwordField.setOnKeyPressed(event -> {
+    passwordStartTime = System.currentTimeMillis();
+});
+// Fast typing might indicate copy-paste or automated attacks
+Configuration Management
+AppConstants.java - Centralized Settings
+
+java
+// Why public constants?
+public static final String DATA_DIR = System.getProperty("user.home") + "/.safenotes";
+// 1. Transparency in security parameters
+// 2. Easy adjustment of security levels
+// 3. Cross-platform compatibility
+// 4. Single source of truth for configuration
+📁 File-by-File Documentation
+AppConstants.java
+java
+// File paths use System.getProperty("user.home") for cross-platform support
+// Windows: C:\Users\Username\.safenotes
+// Linux/macOS: /home/username/.safenotes
+
+// Security parameters are tuned for modern hardware:
+// - ARGON2_MEMORY = 65536 (64MB) - Defends against GPU attacks
+// - KEY_SIZE = 256 - Quantum-resistant key size
+// - GCM_TAG_LENGTH = 128 - Strong authentication tags
+SafeNotesApp.java
+java
+// Main application class manages the primary window
+private void setupPrimaryStage() {
+    primaryStage.setAlwaysOnTop(true); // Weak screenshot prevention
+    // Note: This can be overridden by OS/other always-on-top windows
+}
+LoginController.java
+java
+// Keystroke monitoring implementation
+private void keystrokeMonitoring() {
+    // Tracks typing speed for behavioral biometrics
+    // Progress fills over 5 seconds to analyze typing pattern
+}
+
+// Security alert system
+if (loginAttempts >= 2) {
+    securityStatusLabel.setText("Multiple failed attempts detected");
+    // Alerts user to potential brute-force attacks
+}
+RegisterController.java
+java
+// Password strength algorithm
+// Each requirement (length, case, digit, special) contributes 20 points
+// Total score determines strength level: Very Weak → Strong
+
+// Why clear password fields?
+passwordField.clear();
+// 1. Prevents shoulder surfing
+// 2. Removes sensitive data from UI
+// 3. Prepares for next input
+ViewLoader.java
+java
+// Modal window creation
+public static Stage createModalStage(String title, String fxmlPath) {
+    Stage modalStage = new Stage();
+    modalStage.initModality(Modality.APPLICATION_MODAL); // Blocks entire app
+    modalStage.setResizable(false); // Fixed-size dialogs
+    // Modality ensures users must address popups before continuing
+}
+
+
+❓ Frequently Asked Questions
+
+
+Q: What's the purpose of the keystroke timing feature?
+A: Behavioral biometrics. By analyzing typing speed and rhythm, the system can:
+
+Detect automated login attempts
+
+Add an extra layer of authentication
+
+Alert on anomalous behavior
+
+Slow down brute-force attacks
+
+Q: Why clear password fields after login attempts?
+A:
+
+Security: Prevents password exposure if someone walks by
+
+Privacy: Shared computers won't show previous passwords
+
+UX: Clear indication that attempt was processed
+
+Q: How does the password strength algorithm work?
+A: Each requirement adds 20 points:
+
+✓ 10+ characters (20 points)
+
+✓ Uppercase letter (20 points)
+
+✓ Lowercase letter (20 points)
+
+✓ Digit (20 points)
+
+✓ Special character (20 points)
+
+Score interpretation:
+
+0-39: Very Weak
+
+40-59: Weak
+
+60-79: Good
+
+80-100: Strong
+
+
+🚀 Getting Started
+Prerequisites
+Java 11 or higher
+
+JavaFX SDK
+
+Maven or Gradle
+
+Building from Source
+bash
+git clone https://github.com/yourusername/safenotes.git
+cd safenotes
+mvn clean package
+java -jar target/safenotes.jar
+Configuration
+First run creates ~/.safenotes/ directory
+
+Default credentials: demo/demo
+
+Configure security settings in Preferences
+
+🔮 Roadmap
+Next Features to Implement
+Database integration for user storage
+
+Complete encryption service implementation
+
+Two-factor authentication setup
+
+Note encryption/decryption
+
+Keystroke profile calibration
+
+Security Enhancements Planned
+Secure memory wiping of sensitive data
+
+Audit logging system
+
+Automatic session timeout
+
+Brute-force protection with exponential backoff

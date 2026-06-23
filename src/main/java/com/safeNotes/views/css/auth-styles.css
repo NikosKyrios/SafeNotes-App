@@ -1,0 +1,213 @@
+.root {
+    -primary-color: #000000;
+    -secondary-color: #3498db;
+    -success-color: #27ae60;
+    -warning-color: #f39c12;
+    -danger-color: #e74c3c;
+    -light-color: #a8c2c8;
+    -dark-color: #2c3e50;
+    
+    -background-gradient: linear-gradient(to bottom, #3498db, #2c3e50);
+}
+
+.app-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -primary-color;
+}
+
+.app-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #7f8c8d;
+}
+
+.form-container {
+    -fx-padding: 20px;
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 10px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+}
+
+.form-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -primary-color;
+    -fx-padding: 0 0 10px 0;
+}
+
+.input-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #34495e;
+}
+
+.text-field, .password-field {
+    -fx-pref-height: 35px;
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 5px;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 5px;
+    -fx-border-width: 1px;
+    -fx-padding: 5px 10px;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: -secondary-color;
+    -fx-border-width: 2px;
+    -fx-background-color: white;
+}
+
+/* Buttons */
+.primary-button {
+    -fx-pref-height: 40px;
+    -fx-background-color: -secondary-color;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+.primary-button:pressed {
+    -fx-background-color: #1c5a7a;
+}
+
+.secondary-button {
+    -fx-pref-height: 40px;
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.link-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -secondary-color;
+    -fx-cursor: hand;
+    -fx-underline: true;
+    -fx-padding: 0;
+}
+
+.link-button:hover {
+    -fx-text-fill: #2980b9;
+}
+
+/* Checkbox */
+.check-box {
+    -fx-text-fill: #34495e;
+}
+
+.check-box .box {
+    -fx-background-color: white;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 3px;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: -secondary-color;
+}
+
+/* Password Strength */
+.strength-very-weak {
+    -fx-text-fill: -danger-color;
+    -fx-font-weight: bold;
+}
+
+.strength-weak {
+    -fx-text-fill: -warning-color;
+    -fx-font-weight: bold;
+}
+
+.strength-good {
+    -fx-text-fill: #f39c12;
+    -fx-font-weight: bold;
+}
+
+.strength-strong {
+    -fx-text-fill: -success-color;
+    -fx-font-weight: bold;
+}
+
+.requirement-met {
+    -fx-text-fill: -success-color;
+}
+
+.requirement-unmet {
+    -fx-text-fill: #95a5a6;
+}
+
+/* Requirements Box */
+.requirements-box {
+    -fx-padding: 10px;
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 5px;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 5px;
+}
+
+/* Section Box */
+.section-box {
+    -fx-padding: 15px;
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 5px;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 5px;
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -primary-color;
+}
+
+/* Error Text */
+.error-text {
+    -fx-text-fill: -danger-color;
+    -fx-font-size: 11px;
+}
+
+/* Hint Text */
+.hint-text {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 11px;
+}
+
+/* Security Status */
+.security-status {
+    -fx-padding: 10px;
+    -fx-background-color: #fff3cd;
+    -fx-background-radius: 5px;
+    -fx-border-color: #ffeaa7;
+    -fx-border-radius: 5px;
+    -fx-border-width: 1px;
+}
+
+/* Footer */
+.footer {
+    -fx-padding: 10px;
+    -fx-background-color: #f8f9fa;
+}
+
+.footer-text {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 11px;
+}
+
+/* Progress Bar Customization */
+.progress-bar > .track {
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 3px;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: -secondary-color;
+    -fx-background-radius: 3px;
+    -fx-padding: 2px;
+}

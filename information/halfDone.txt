@@ -1,0 +1,38 @@
+- app/SafeNotesApp
+
+handleExit()
+
+- controllers/auth/LoginController
+
+    private void onRegister()
+    private void onForgotPassword()
+
+    private void onLogin() //auth with database
+
+- controllers/auth/RegisterController
+
+    onRegister() : // Implement actual registration with database
+                  // Create user account
+                 // Handle keyStrokeCalibration
+                // Setup 2FA
+
+    onCancel() : //return to login screen
+
+- controllers/dashboard/DashboardController
+
+    openNote()
+    openNoteEditor()
+    filterNotes()
+    updateWelcome()
+    loadNotes()
+    onCreateNewNote()
+    onAccountSettings()
+    onSecuritySettings()
+    onLockApp()
+    onLogout()
+
+- encryption
+    Argon2Hasher.java
+
+        needsUpgrade()
+        upgradeHash()

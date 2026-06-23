@@ -1,0 +1,151 @@
+src/main/java/com/safenotes/
+
+├── app/
+│   ├── Main.java                    # Entry point - launches JavaFX app
+│   ├── SafeNotesApp.java            # JavaFX Application class - manages main window
+│   └── config/
+│       └── AppConfig.java           # Central configuration - loads settings, creates services (Singleton)
+│
+├── controllers/                     # JavaFX controllers - handle UI events
+│   ├── auth/                        # Authentication-related screens
+│   │   ├── LoginController.java     # Handles login screen logic
+│   │   ├── RegisterController.java  # Handles user registration
+│   │   └── TwoFactorController.java # Manages 2FA setup/verification
+│   ├── dashboard/                   # Main app dashboard
+│   │   ├── DashboardController.java # Main dashboard after login
+│   │   └── NoteListController.java  # Displays list of notes
+│   ├── notes/                       # Note-specific operations
+│   │   ├── NoteEditorController.java # Rich text editor for notes
+│   │   ├── NoteSecurityController.java # Sets security for individual notes
+│   │   └── NoteSettingsController.java # Note metadata editing
+│   └── security/                    # Security feature screens
+│       ├── BiometricController.java  # Keystroke dynamics setup/verification
+│       ├── PinEntryController.java   # PIN input for notes
+│       └── SecuritySettingsController.java # Global security settings
+│
+├── models/                          # Data structures
+│   ├── domain/                      # Core business objects
+│   │   ├── User.java                # User account with credentials and preferences
+│   │   ├── SecureNote.java          # Note with content + security metadata
+│   │   ├── NoteSecurityProfile.java # Security settings for a note (PIN, blur, etc.)
+│   │   └── TypingProfile.java       # Keystroke timing patterns for biometric auth
+│   │   └── TypingData.java          # First Registration Use
+│   ├── dto/                         # Data Transfer Objects - for API/UI communication
+│   │   ├── LoginRequest.java        # Encapsulates login form data
+│   │   ├── LoginResult.java         # Successfull or not login
+│   │   ├── RegistrationRequest.java     # Encapsulates registration data
+│   │   ├── RegistrationResult.java  # Successful or not registration
+│   │   ├── NoteCreateRequest.java   # Data for creating new notes
+│   │   └── SecuritySettingsRequest.java # Security preference updates
+│   └── enums/                       # Fixed sets of values
+│       ├── SecurityLevel.java       # LOW, MEDIUM, HIGH, PARANOID
+│       ├── NoteType.java            # TEXT, RICH_TEXT, CHECKLIST, etc.
+│       ├── EncryptionAlgorithm.java # AES256, CHACHA20, etc.
+│       └── AuthMethod.java          # PASSWORD, BIOMETRIC, 2FA, etc.
+│
+├── services/                        # Business logic layer - where the magic happens
+│   ├── auth/                        # Authentication services
+│   │   ├── AuthenticationService.java (interface)    # Contract for auth operations
+│   │   ├── AuthenticationServiceImpl.java            # Actual auth implementation
+│   │   ├── TwoFactorService.java     # Generates/verifies TOTP codes
+│   │   └── SessionManager.java       # Manages user sessions, timeout, logout
+│   ├── encryption/                   # CRITICAL: All encryption logic here
+│   │   ├── EncryptionService.java (interface)        # Encryption contract
+│   │   ├── AESEncryptionService.java # AES implementation for note encryption
+│   │   ├── Argon2Hasher.java         # Password encryption using Argon2
+│   │   ├── KeyManagementService.java # Generates/stores/rotates encryption keys
+│   │   └── PasswordHasher.java (interface)           # Hashes passwords (argon2)
+│   ├── notes/                       # Note management
+│   │   ├── NoteService.java (interface)              # Note CRUD operations
+│   │   ├── NoteServiceImpl.java      # Actual note operations
+│   │   ├── NoteSecurityService.java  # Applies security to notes (blur, lock, etc.)
+│   │   └── NoteSearchService.java    # Encrypted search functionality
+│   ├── biometric/                   # Your keystroke dynamics feature
+│   │   ├── KeystrokeService.java     # Tracks typing speed/timing
+│   │   ├── TypingProfileAnalyzer.java # Analyzes patterns, calculates averages
+│   │   └── BehavioralAnalyticsService.java # Detects anomalous behavior
+│   ├── audit/                       # Security monitoring
+│   │   ├── AuditLogger.java          # Logs all security events
+│   │   └── SecurityEventService.java # Processes security events, triggers alerts
+│   └── storage/                     # Data persistence
+│       ├── DataStorageService.java (interface)       # Storage contract
+│       ├── LocalFileStorageService.java # Saves to local files (encrypted)
+│       └── DatabaseService.java      # SQLite/PostgreSQL storage
+│
+├── repositories/                    # Data access layer - talks to storage
+│   ├── UserRepository.java (interface)               # User CRUD operations
+│   ├── UserRepositoryImpl.java      # Actual user database operations
+│   ├── NoteRepository.java (interface)               # Note CRUD operations
+│   ├── NoteRepositoryImpl.java      # Actual note database operations
+│   ├── SecurityProfileRepository.java # Security settings persistence
+│   └── AuditLogRepository.java      # Stores audit trails
+│
+├── utils/                           # Helper classes - reusable utilities
+│   ├── validators/                  # Input validation
+│   │   ├── PasswordValidator.java   # Validates password strength
+│   │   ├── InputSanitizer.java      # Prevents XSS/SQL injection
+│   │   └── SecurityValidator.java   # Validates security settings
+│   ├── security/                    # Security utilities
+│   │   ├── SecureRandomGenerator.java # Cryptographically secure random numbers
+│   │   ├── TokenGenerator.java      # Generates session tokens, recovery codes
+│   │   └── SecurityHeaders.java     # Adds security headers if using HTTP
+│   ├── time/                        # Time utilities (important for keystroke timing)
+│   │   ├── TimeProvider.java        # Abstract time source (for testing)
+│   │   └── DateUtils.java           # Date formatting/parsing
+│   └── gui/                         # UI helpers
+│       ├── AlertHelper.java         # Shows standardized alerts/dialogs
+│       ├── ViewLoader.java          # Loads FXML views (decouples controllers)
+│       └── AnimationHelper.java     # UI animations for better UX
+│
+├── views/                           # JavaFX UI components
+│   ├── fxml/                        # FXML files - define UI layout/structure
+│   │   ├── auth/                    # Authentication screens
+│   │   │   ├── login.fxml           # Login form UI definition
+│   │   │   ├── register.fxml        # Registration form UI
+│   │   │   └── two_factor.fxml      # 2FA entry screen
+│   │   ├── dashboard/               # Main app screens
+│   │   │   ├── dashboard.fxml       # Main dashboard layout
+│   │   │   ├── note_list.fxml       # List of notes UI
+│   │   │   └── welcome.fxml         # Welcome screen after login
+│   │   ├── notes/                   # Note editing screens
+│   │   │   ├── note_editor.fxml     # Rich text editor UI
+│   │   │   ├── note_security.fxml   # Note security settings UI
+│   │   │   └── note_settings.fxml   # Note metadata UI
+│   │   └── security/                # Security feature screens
+│   │       ├── biometric_setup.fxml # Keystroke dynamics setup wizard
+│   │       ├── pin_entry.fxml       # PIN entry dialog
+│   │       └── security_settings.fxml # Global security preferences
+│   └── css/                         # Styling
+│       ├── styles.css               # Global styles
+│       ├── auth-styles.css          # Authentication screen styles
+│       └── notes-styles.css         # Note editor styles
+│
+├── config/                          # Configuration classes
+│   ├── DatabaseConfig.java          # Database connection setup
+│   ├── SecurityConfig.java          # Security policy configuration
+│   └── AppConstants.java            # Application constants (timeouts, limits, etc.)
+│
+└── exceptions/                      # Custom exceptions for better error handling
+    ├── AuthException.java           # Authentication failures
+    ├── EncryptionException.java     # Encryption/decryption errors
+    ├── HashingException.java        # Hashing errors
+    ├── NoteAccessException.java     # Note access denied
+    ├── StorageException.java        # Data storage errors
+    └── SecurityViolationException.java # Security policy violations
+
+src/main/resources/
+├── com/safenotes/views/fxml/        # FXML files (mirrors views/fxml structure)
+├── css/                             # CSS files
+├── images/                          # Images and icons
+│   ├── icons/                       # UI icons
+│   │   ├── lock.png                 # Lock icon for secure notes
+│   │   ├── note.png                 # Default note icon
+│   │   ├── blur.png                 # Blur feature icon
+│   │   └── biometric.png            # Biometric auth icon
+│   └── backgrounds/                 # Background images
+├── config/                          # Configuration files
+│   ├── application.properties       # General app settings
+│   ├── security.properties          # Security-specific settings
+│   └── database.properties          # Database configuration
+└── certificates/                    # SSL certificates (if using HTTPS/network)
+

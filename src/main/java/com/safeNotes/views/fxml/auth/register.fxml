@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.safenotes.controllers.auth.RegisterController"
+            stylesheets="@../../css/auth-styles.css"
+            prefWidth="450" prefHeight="650">
+    
+    <center>
+        <ScrollPane fitToWidth="true">
+            <VBox alignment="CENTER" spacing="20" padding="20">
+                <Label text="Create Account" styleClass="form-title"/>
+                
+                <!-- Registration Form -->
+                <VBox alignment="CENTER_LEFT" spacing="15" styleClass="form-container">
+                    
+                    <!-- Username -->
+                    <VBox spacing="5">
+                        <Label text="Username *" styleClass="input-label"/>
+                        <TextField fx:id="usernameField" promptText="Choose username"
+                                 styleClass="text-field"/>
+                        <Label fx:id="usernameError" styleClass="error-text" visible="false"/>
+                    </VBox>
+                    
+                    <!-- Password -->
+                    <VBox spacing="5">
+                        <Label text="Password *" styleClass="input-label"/>
+                        <PasswordField fx:id="passwordField" promptText="Create strong password"
+                                     styleClass="password-field"/>
+                        
+                        <!-- Password Strength Meter -->
+                        <VBox spacing="5" fx:id="passwordStrengthBox">
+                            <ProgressBar fx:id="passwordStrengthBar" progress="0" prefWidth="300"/>
+                            <Label fx:id="passwordStrengthLabel" text="Very Weak" 
+                                   styleClass="strength-weak"/>
+                        </VBox>
+                        
+                        <!-- Password Requirements -->
+                        <VBox spacing="3" styleClass="requirements-box">
+                            <Label text="Requirements:" styleClass="hint-text"/>
+                            <Label fx:id="lengthReq" text="✗ At least 12 characters" 
+                                   styleClass="requirement-unmet"/>
+                            <Label fx:id="upperReq" text="✗ Uppercase letter" 
+                                   styleClass="requirement-unmet"/>
+                            <Label fx:id="lowerReq" text="✗ Lowercase letter" 
+                                   styleClass="requirement-unmet"/>
+                            <Label fx:id="digitReq" text="✗ Number" 
+                                   styleClass="requirement-unmet"/>
+                            <Label fx:id="specialReq" text="✗ Special character" 
+                                   styleClass="requirement-unmet"/>
+                        </VBox>
+                    </VBox>
+                    
+                    <!-- Confirm Password -->
+                    <VBox spacing="5">
+                        <Label text="Confirm Password *" styleClass="input-label"/>
+                        <PasswordField fx:id="confirmPasswordField" 
+                                     promptText="Re-enter password"
+                                     styleClass="password-field"/>
+                        <Label fx:id="passwordMatchError" styleClass="error-text" 
+                               visible="false" text="Passwords don't match"/>
+                    </VBox>
+                    
+                    <!-- Security Features -->
+                    <VBox spacing="10" styleClass="section-box">
+                        <Label text="Security Features" styleClass="section-title"/>
+                        
+                        <!-- Keystroke Dynamics -->
+                        <VBox spacing="8">
+                            <CheckBox fx:id="enableKeystrokeCheck" text="Enable Keystroke Dynamics"
+                                      selected="true"/>
+                            <VBox spacing="5" fx:id="keystrokeInfoBox" visible="false">
+                                <Label text="Type your password 3 times to calibrate:" 
+                                       styleClass="hint-text"/>
+                                <ProgressBar fx:id="keystrokeCalibrationBar" progress="0"/>
+                                <Label fx:id="keystrokeStatus" text="0/3 samples collected"
+                                       styleClass="hint-text"/>
+                            </VBox>
+                        </VBox>
+                        
+                        <!-- Two-Factor Authentication -->
+                        <CheckBox fx:id="enableTwoFactorCheck" text="Enable Two-Factor Authentication"/>
+                        
+                        <!-- Auto Lock -->
+                        <CheckBox fx:id="enableAutoLockCheck" text="Auto-lock after inactivity"/>
+                    </VBox>
+                    
+                    <!-- Terms & Conditions -->
+                    <VBox spacing="5">
+                        <CheckBox fx:id="termsCheck" text="I agree to Terms & Privacy Policy"/>
+                        <Label fx:id="termsError" styleClass="error-text" visible="false"/>
+                    </VBox>
+                    
+                    <!-- Action Buttons -->
+                    <HBox spacing="20" alignment="CENTER">
+                        <Button text="Cancel" onAction="#onCancel" 
+                                styleClass="secondary-button"/>
+                        <Button text="Create Account" onAction="#onRegister" 
+                                styleClass="primary-button" defaultButton="true"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

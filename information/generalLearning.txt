@@ -1,0 +1,18 @@
+
+--------------------
+Q: What does initModality(Modality.APPLICATION_MODAL) do?
+A: Creates a blocking popup window. Users must close it before interacting with any other part of the application. Used for important dialogs like login, error messages, and security prompts.
+--------------------
+
+Q: Why use System.getProperty("user.home") for file paths?
+A: Cross-platform compatibility:
+
+Windows: C:\Users\Username
+
+macOS: /Users/Username
+
+Linux: /home/username
+
+This ensures the app works correctly on all operating systems without manual configuration.
+
+--------------------
