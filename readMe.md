@@ -1,5 +1,7 @@
 # Architecture Overview
 
+Note: This project is primarily for educational purposes and is a work in progress — not yet finished.
+
 ## Core Components:
 ###
 - Authentication System (Login/Register)
