@@ -8,6 +8,7 @@
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/config/DatabaseConfig.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/services/auth/TwoFactorService.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/models/domain/TypingProfile.java
+/Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/services/encryption/Argon2Hasher.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/models/enums/NoteType.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/repositories/SecurityProfileRepository.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/services/encryption/PasswordHasher.java
@@ -20,9 +21,11 @@
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/models/enums/SecurityLevel.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/utils/gui/ViewLoader.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/services/audit/AuditLogger.java
+/Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/repositories/SQLUserRepository.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/exceptions/NoteAccessException.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/services/notes/NoteService.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/app/config/AppConfig.java
+/Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/models/dto/RegistrationRequest.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/utils/gui/AnimationHelper.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/repositories/NoteRepository.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/repositories/UserRepository.java
@@ -31,13 +34,14 @@
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/services/notes/NoteServiceImpl.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/utils/security/SecurityHeaders.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/controllers/notes/NoteSettingsController.java
-/Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/models/dto/RegisterRequest.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/services/biometric/BehavioralAnalyticsService.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/utils/validators/PasswordValidator.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/models/dto/NoteCreateRequest.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/controllers/security/BiometricController.java
+/Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/exceptions/HashingException.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/utils/time/TimeProvider.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/utils/validators/InputSanitizer.java
+/Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/models/domain/TypingData.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/app/SafeNotesApp.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/utils/validators/SecurityValidator.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/exceptions/StorageException.java
@@ -55,7 +59,9 @@
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/controllers/notes/NoteEditorController.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/services/biometric/TypingProfileAnalyzer.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/services/storage/DatabaseService.java
+/Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/models/dto/LoginResult.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/utils/security/SecureRandomGenerator.java
+/Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/models/dto/RegistrationResult.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/config/AppConstants.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/exceptions/EncryptionException.java
 /Users/nikokyrios/Desktop/CyberSecurity/SafeNotes/src/main/java/com/safeNotes/controllers/dashboard/NoteListController.java

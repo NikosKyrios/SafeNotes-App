@@ -47,7 +47,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         //2. Find user
         User user;
         try {
-            user = userRepository.findByUsername(username);
+            user = userRepository.findByUsername(username).orElse(null);
         }
         catch (StorageException e) {
             throw new AuthException("Database error. Please try again.", e);
@@ -102,7 +102,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public void addTrusterLocation(String userId, String locationHash) throws AuthException {
         User user;
         try {
-            user = userRepository.findByUsername(userId);
+            user = userRepository.findByUsername(userId).orElse(null);
         }
         catch (StorageException e) {
             throw new AuthException("Location not found");

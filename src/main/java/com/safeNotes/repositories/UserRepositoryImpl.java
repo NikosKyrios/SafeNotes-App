@@ -8,7 +8,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,28 +46,37 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> findAll() throws StorageException {
-        return new ArrayList<>(usersByUsername.values());
+        List<User> result = new ArrayList<>();
+        for (User user : usersByUsername.values()) {
+            result.add(user.copy());
+        }
+        return result;
     }
 
     @Override
-    public User findByUsername(String username) throws StorageException {
+    public Optional<User> findByUsername(String username) throws StorageException {
         User user = usersByUsername.get(username);
-        return user != null ? user.copy() : null;
+        return Optional.ofNullable(user).map(User::copy);
     }
 
     @Override
-    public User save(User user) throws StorageException {
-        if (user == null) throw new StorageException("User can not be null");
+    public void save(User user) throws StorageException {
+        if (user == null) {
+            throw new StorageException("User can not be null");
+        }
 
         User copy = user.copy();
         usersByUsername.put(copy.getUsername(), copy);
-        usersById.put(copy.getUserId(), copy);
+        if (copy.getUserId() != null) {
+            usersById.put(copy.getUserId(), copy);
+        }
         saveToFile();
-        return copy;
     }
 
     private void loadFromFile() throws StorageException {
-        if (!Files.exists(dataFile)) return;
+        if (!Files.exists(dataFile)) {
+            return;
+        }
 
         try {
             @SuppressWarnings("unchecked")
@@ -79,7 +88,9 @@ public class UserRepositoryImpl implements UserRepository {
             for (Map.Entry<String, User> entry : loadedUsers.entrySet()) {
                 User user = entry.getValue();
                 usersByUsername.put(user.getUsername(), user);
-                usersById.put(user.getUserId(), user);
+                if (user.getUserId() != null) {
+                    usersById.put(user.getUserId(), user);
+                }
             }
         }
         catch (IOException e) {
@@ -100,5 +111,4 @@ public class UserRepositoryImpl implements UserRepository {
             throw new StorageException("Failed to save users", e);
         }
     }
-    
 }

@@ -19,7 +19,7 @@ public class User {
     private boolean autoLockEnabled;
     private int autoLockMins;
     private boolean locationCheckEnabled;
-    private List<String> trustedLocationHashes;
+    private List<String> trustedLocationHashes = new ArrayList<>();
 
     public User(String userId, String username, byte[] passwordHash, byte[] salt) {
         this.userId = userId;
@@ -34,10 +34,12 @@ public class User {
         this.requireKeystrokeAuth = false;
         this.autoLockEnabled = false;
         this.autoLockMins = 15; // Default value
+        this.locationCheckEnabled = false;
+        this.trustedLocationHashes = new ArrayList<>();
     }
 
     public User(String userId, String username, byte[] passwordHash, byte[] salt,
-            LocalDateTime createdAt, boolean twoFactoredEnabled, 
+            LocalDateTime createdAt, boolean twoFactoredEnabled,
             boolean requireKeystrokeAuth, boolean autoLockEnabled, int autoLockMins,
             boolean locationCheckEnabled, List<String> trustedLocationHashes) {
         this.userId = userId;
@@ -54,6 +56,11 @@ public class User {
         this.autoLockMins = autoLockMins;
         this.locationCheckEnabled = locationCheckEnabled;
         this.trustedLocationHashes = trustedLocationHashes != null ? new ArrayList<>(trustedLocationHashes) : new ArrayList<>();
+    }
+
+    public User() {
+        this.createdAt = LocalDateTime.now();
+        this.trustedLocationHashes = new ArrayList<>();
     }
 
     public String getUserId() {
@@ -80,7 +87,7 @@ public class User {
         if (this.passwordHash != null) {
             Arrays.fill(this.passwordHash, (byte) 0);
         }
-        this.passwordHash = passwordHash != null ? 
+        this.passwordHash = passwordHash != null ?
             Arrays.copyOf(passwordHash, passwordHash.length) : null;
     }
 
@@ -129,7 +136,6 @@ public class User {
 
     public void setTwoFactorSecret(String twoFactorSecret) {
         if (this.twoFactorSecret != null) {
-            // Securely clear old secret
             char[] chars = this.twoFactorSecret.toCharArray();
             Arrays.fill(chars, '\0');
             this.twoFactorSecret = null;
@@ -172,14 +178,30 @@ public class User {
         this.autoLockMins = autoLockMins;
     }
 
-    public boolean isLocationCheckEnabled() {return locationCheckEnabled;}
-    public void setLocationCheckEnabled(boolean locationCheckEnabled) {this.locationCheckEnabled = locationCheckEnabled;}
+    public boolean isLocationCheckEnabled() {
+        return locationCheckEnabled;
+    }
 
-    public List<String> getTrustedLocationHashes() {return new ArrayList<>(trustedLocationHashes);}
+    public void setLocationCheckEnabled(boolean locationCheckEnabled) {
+        this.locationCheckEnabled = locationCheckEnabled;
+    }
 
-    public void addTrustedLocation(String location) {this.trustedLocationHashes.add(location);}
+    public List<String> getTrustedLocationHashes() {
+        return new ArrayList<>(trustedLocationHashes != null ? trustedLocationHashes : List.of());
+    }
 
-    // Security-sensitive methods
+    public void addTrustedLocation(String location) {
+        if (location == null || location.isBlank()) {
+            return;
+        }
+        if (trustedLocationHashes == null) {
+            trustedLocationHashes = new ArrayList<>();
+        }
+        if (!trustedLocationHashes.contains(location)) {
+            trustedLocationHashes.add(location);
+        }
+    }
+
     public void clearSensitiveData() {
         if (passwordHash != null) {
             Arrays.fill(passwordHash, (byte) 0);
@@ -196,7 +218,6 @@ public class User {
         }
     }
 
-    // Copy method for defensive programming
     public User copy() {
         User copy = new User(
             this.userId,
@@ -207,15 +228,16 @@ public class User {
         copy.createdAt = this.createdAt;
         copy.lastLogin = this.lastLogin;
         copy.twoFactoredEnabled = this.twoFactoredEnabled;
-        copy.twoFactorSecret = this.twoFactorSecret; // String is immutable
+        copy.twoFactorSecret = this.twoFactorSecret;
         copy.typingProfile = this.typingProfile;
         copy.requireKeystrokeAuth = this.requireKeystrokeAuth;
         copy.autoLockEnabled = this.autoLockEnabled;
         copy.autoLockMins = this.autoLockMins;
+        copy.locationCheckEnabled = this.locationCheckEnabled;
+        copy.trustedLocationHashes = this.trustedLocationHashes != null ? new ArrayList<>(this.trustedLocationHashes) : new ArrayList<>();
         return copy;
     }
 
-    // Helper method to check if auto-lock is needed
     public boolean isAutoLockExpired(LocalDateTime lastActivity) {
         if (!autoLockEnabled || lastActivity == null) return false;
         return lastActivity.plusMinutes(autoLockMins).isBefore(LocalDateTime.now());
@@ -230,5 +252,4 @@ public class User {
                 ", twoFactoredEnabled=" + twoFactoredEnabled +
                 '}';
     }
-
 }

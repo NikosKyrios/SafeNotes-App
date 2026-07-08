@@ -3,6 +3,7 @@ app/
 
 config/
 ✅ AppConstants.java - Complete with all security constants
+✅ DatabaseConfig.java - sql connection
 
 utils/gui/
 ✅ ViewLoader.java - Complete FXML loading utility
