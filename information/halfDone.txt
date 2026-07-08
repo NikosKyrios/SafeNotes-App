@@ -7,7 +7,7 @@ handleExit()
     private void onRegister()
     private void onForgotPassword()
 
-    private void onLogin() //auth with database
+    private void onLogin() //auth through repository-backed persistence
 
 - controllers/auth/RegisterController
 
@@ -36,3 +36,9 @@ handleExit()
 
         needsUpgrade()
         upgradeHash()
+
+- repositories
+    SQLUserRepository.java
+
+        ensure schema compatibility with existing User model
+        support save/find/delete/exists/findAll operations

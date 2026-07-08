@@ -50,3 +50,4 @@ exceptions/
 repositories/
 ✅ UserRepository.java (interface)
 ✅ UserRepositoryImpl.java
+✅ SQLUserRepository.java - SQLite-backed user persistence implementation

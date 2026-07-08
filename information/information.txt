@@ -74,7 +74,8 @@ src/main/java/com/safenotes/
 │
 ├── repositories/                    # Data access layer - talks to storage
 │   ├── UserRepository.java (interface)               # User CRUD operations
-│   ├── UserRepositoryImpl.java      # Actual user database operations
+│   ├── UserRepositoryImpl.java      # File-backed user repository implementation
+│   ├── SQLUserRepository.java       # SQLite-backed user repository implementation
 │   ├── NoteRepository.java (interface)               # Note CRUD operations
 │   ├── NoteRepositoryImpl.java      # Actual note database operations
 │   ├── SecurityProfileRepository.java # Security settings persistence
