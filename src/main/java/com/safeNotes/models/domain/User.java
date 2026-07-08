@@ -24,8 +24,8 @@ public class User {
     public User(String userId, String username, byte[] passwordHash, byte[] salt) {
         this.userId = userId;
         this.username = username;
-        this.passwordHash = Arrays.copyOf(passwordHash, passwordHash.length);
-        this.salt = Arrays.copyOf(salt, salt.length);
+        this.passwordHash = passwordHash != null ? Arrays.copyOf(passwordHash, passwordHash.length) : null;
+        this.salt = salt != null ? Arrays.copyOf(salt, salt.length) : new byte[0];
         this.createdAt = LocalDateTime.now();
         this.lastLogin = null; // First login hasn't happened yet
         this.twoFactoredEnabled = false;
@@ -44,8 +44,8 @@ public class User {
             boolean locationCheckEnabled, List<String> trustedLocationHashes) {
         this.userId = userId;
         this.username = username;
-        this.passwordHash = Arrays.copyOf(passwordHash, passwordHash.length);
-        this.salt = Arrays.copyOf(salt, salt.length);
+        this.passwordHash = passwordHash != null ? Arrays.copyOf(passwordHash, passwordHash.length) : null;
+        this.salt = salt != null ? Arrays.copyOf(salt, salt.length) : new byte[0];
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
         this.lastLogin = null;
         this.twoFactoredEnabled = twoFactoredEnabled;

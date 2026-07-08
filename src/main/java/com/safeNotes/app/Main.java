@@ -1,34 +1,46 @@
 package com.safeNotes.app;
-import java.util.Scanner;
 
-import com.safeNotes.controllers.auth.RegisterController;
+import com.safeNotes.exceptions.AuthException;
+import com.safeNotes.exceptions.StorageException;
+import com.safeNotes.models.dto.LoginRequest;
+import com.safeNotes.models.dto.LoginResult;
+import com.safeNotes.models.dto.RegistrationRequest;
+import com.safeNotes.models.dto.RegistrationResult;
+import com.safeNotes.repositories.SQLUserRepository;
+import com.safeNotes.repositories.UserRepository;
+import com.safeNotes.services.auth.AuthenticationService;
+import com.safeNotes.services.auth.AuthenticationServiceImpl;
+import com.safeNotes.services.auth.SessionManager;
+import com.safeNotes.services.encryption.Argon2Hasher;
+import com.safeNotes.services.encryption.PasswordHasher;
 
 public class Main {
-    public static void main(String[] args) {
-        SafeNotesApp.main(args);
+    public static void main(String[] args) throws StorageException {
+        PasswordHasher hasher = new Argon2Hasher();
+        UserRepository repo = new SQLUserRepository();
+        SessionManager sessionManager = new SessionManager();
+        AuthenticationService auth = new AuthenticationServiceImpl(repo, hasher, sessionManager);
 
-        /*Scanner scanner = new Scanner(System.in);
-        System.out.println("1. Register\n2. Login\n3. Exit\nWrite the number: ");
-        int choice = scanner.nextInt();
-        
-        if (choice == 1) {
-            System.out.print("Username: ");
-            String username = scanner.nextLine();
+        String username = "testuser12";
+        String password = "SecurePassword12!";
 
-            System.out.print("Password: ");
-            String password = scanner.nextLine();
+        RegistrationRequest registrationRequest = new RegistrationRequest(username, password, false, false, false, null, null);
+        RegistrationResult registrationResult;
+        try {
+            registrationResult = auth.register(registrationRequest);
+            System.out.println("Registration: " + registrationResult.isSuccess() + " - " + registrationResult.getMessage());
+        } catch (AuthException e) {
+            System.out.println("Registration failed: " + e.getMessage());
+            return;
+        }
 
-            RegisterController.register(username, password);
+        LoginRequest loginRequest = new LoginRequest(username, password, null, null);
+        LoginResult loginResult;
+        try {
+            loginResult = auth.login(loginRequest);
+            System.out.println("Login: " + loginResult.isSuccess() + " - " + loginResult.getMessage());
+        } catch (AuthException e) {
+            System.out.println("Login failed: " + e.getMessage());
         }
-        else if (choice == 2) {
-            login();
-        }
-        else if (choice == 3) {
-            exit();
-        }
-        else {
-            System.out.println("Choose a valid number.");
-        }
-        scanner.close();*/
     }
 }

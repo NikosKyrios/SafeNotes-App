@@ -56,10 +56,13 @@ public class SQLUserRepository implements UserRepository {
 
         try (Connection conn = DatabaseConfig.connect();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+            byte[] passwordHash = user.getPasswordHash() != null ? user.getPasswordHash() : new byte[0];
+            byte[] salt = user.getSalt() != null ? user.getSalt() : new byte[0];
+
             ps.setString(1, user.getUserId());
             ps.setString(2, user.getUsername());
-            ps.setBytes(3, user.getPasswordHash());
-            ps.setBytes(4, user.getSalt());
+            ps.setBytes(3, passwordHash);
+            ps.setBytes(4, salt);
             ps.setString(5, user.getCreatedAt().toString());
             ps.setString(6, user.getLastLogin() != null ? user.getLastLogin().toString() : null);
             ps.executeUpdate();
