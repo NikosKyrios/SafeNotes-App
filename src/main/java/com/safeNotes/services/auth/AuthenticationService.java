@@ -7,7 +7,7 @@ import com.safeNotes.models.dto.RegistrationRequest;
 import com.safeNotes.models.dto.RegistrationResult;
 
 public interface AuthenticationService {
-    LoginResult login(LoginRequest request) throws AuthException;
+    LoginResult login(String username, String password) throws AuthException;
 
     RegistrationResult register(RegistrationRequest request) throws AuthException;
 
@@ -16,4 +16,5 @@ public interface AuthenticationService {
     boolean validatePasswordStrength(String password);
     boolean isUsernameAvailable(String username);
     void addTrusterLocation(String userId, String locationHash) throws AuthException;
+
 }

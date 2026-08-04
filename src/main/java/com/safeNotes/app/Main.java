@@ -16,9 +16,9 @@ import com.safeNotes.services.encryption.PasswordHasher;
 
 public class Main {
     public static void main(String[] args) throws StorageException {
-        PasswordHasher hasher = new Argon2Hasher();
+        /* PasswordHasher hasher = new Argon2Hasher();
         UserRepository repo = new SQLUserRepository();
-        SessionManager sessionManager = new SessionManager();
+        //SessionManager sessionManager = new SessionManager();
         AuthenticationService auth = new AuthenticationServiceImpl(repo, hasher, sessionManager);
 
         String username = "testuser12";
@@ -41,6 +41,6 @@ public class Main {
             System.out.println("Login: " + loginResult.isSuccess() + " - " + loginResult.getMessage());
         } catch (AuthException e) {
             System.out.println("Login failed: " + e.getMessage());
-        }
-    }
+        } */
+    } 
 }

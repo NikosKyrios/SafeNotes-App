@@ -1,6 +1,14 @@
 package com.safeNotes.controllers.auth;
 
 import com.safeNotes.app.SafeNotesApp;
+import com.safeNotes.exceptions.StorageException;
+import com.safeNotes.models.domain.User;
+import com.safeNotes.services.auth.AuthenticationService;
+import com.safeNotes.services.auth.AuthenticationServiceImpl;
+import com.safeNotes.repositories.SQLUserRepository;
+import com.safeNotes.services.encryption.Argon2Hasher;
+import com.safeNotes.utils.gui.AlertHelper;
+import com.safeNotes.services.auth.SessionManager;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -20,10 +28,19 @@ public class LoginController {
 
     private long passwordStartTime;
     private int loginAttempts;
+    private AuthenticationService authService;
 
     @FXML
     public void initialize() {
-        keystrokeMonitoring();
+        try {
+            keystrokeMonitoring();
+            authService = new AuthenticationServiceImpl(new SQLUserRepository(), new Argon2Hasher(), SessionManager.getInstance()); 
+            InputValidation();
+        }
+        catch (StorageException e) {
+            AlertHelper.showError("Failed to initialize database: " + e.getMessage());
+        }
+
     } 
     
     private void keystrokeMonitoring() {
@@ -60,36 +77,50 @@ public class LoginController {
         String username = usernamField.getText().trim();
         String password = passwordField.getText();
 
-        //ToDO authentication with database
-        System.out.println("Login tried by: " + username);
-
-        if (username.equals("demo") && password.equals("demo")) {
-            showDashboard();
+        if (username.isEmpty() || password.isEmpty()) {
+            showError("Please enter both username and password");
+            return;
         }
-        else {
-            showError("Either username or password is wrong");
-            loginAttempts++;
 
-            //to alert that someone is trying to many times
-            if (loginAttempts >= 2) {
+        try {
+            var result = authService.login(username, password);
+
+            if (result.isSuccess()) {
+
                 securityStatusBox.setVisible(true);
-                securityStatusLabel.setText("Multiple failed attempts detected");
-                securityProgress.setProgress(0.8);
+                securityStatusLabel.setText("Login successful");
+                securityProgress.setProgress(1.0);
+                showDashboard();
             }
+            else {
+                loginAttempts++;
+                showError(result.getMessage());
+
+                if (loginAttempts >= 3) {
+                    securityStatusBox.setVisible(true);
+                    securityStatusLabel.setText("Multiple failed attempts - Security alert");
+                    securityProgress.setProgress(0.3);
+                }
+            }
+        } 
+        catch (Exception e) {
+            showError("Login error: " + e.getMessage());
+            e.printStackTrace();
         }
         passwordField.clear();
     }
 
     @FXML
     private void onRegister() {
-        //TO DO
-        System.out.println("Nice");
+        SafeNotesApp.getInstance().showRegisterScreen();
     }
 
     @FXML
     private void onForgotPassword() {
-        //TO DO
-        System.out.println("Nice");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Password Recovery");
+        alert.setHeaderText(null);
+        alert.showAndWait();
     }
 
     private void showDashboard() {

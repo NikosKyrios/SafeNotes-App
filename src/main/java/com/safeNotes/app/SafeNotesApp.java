@@ -46,6 +46,20 @@ public class SafeNotesApp extends Application {
         }
     }
 
+    public void showRegisterScreen() {
+        try {
+            Scene registerScene = ViewLoader.loadScene("/com/safeNotes/views/fxml/auth/registere.fxml");
+            primaryStage.setScene(registerScene);
+            primaryStage.centerOnScreen();
+            primaryStage.show();
+        }
+
+        catch (Exception e) {
+            System.err.println("Error loading register screen: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public void showDashboard() {
         try {
             Scene dashboardScene = ViewLoader.loadScene("/com/safeNotes/views/fxml/dashboard/dashboard.fxml");

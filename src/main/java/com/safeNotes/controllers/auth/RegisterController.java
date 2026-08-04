@@ -3,13 +3,20 @@ package com.safeNotes.controllers.auth;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.safeNotes.app.SafeNotesApp;
 import com.safeNotes.config.AppConstants;
 import com.safeNotes.exceptions.AuthException;
+import com.safeNotes.exceptions.StorageException;
 import com.safeNotes.models.domain.TypingData;
 import com.safeNotes.models.dto.RegistrationRequest;
 import com.safeNotes.models.dto.RegistrationResult;
 import com.safeNotes.services.auth.AuthenticationService;
+import com.safeNotes.services.auth.AuthenticationServiceImpl;
+import com.safeNotes.services.auth.SessionManager;
 import com.safeNotes.utils.gui.AlertHelper;
+import com.safeNotes.utils.gui.ViewLoader;
+import com.safeNotes.repositories.SQLUserRepository;
+import com.safeNotes.services.encryption.Argon2Hasher;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -18,6 +25,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class RegisterController {
 
@@ -55,8 +63,17 @@ public class RegisterController {
 
     @FXML
     public void initialize() {
-        setupPasswordValidation();
-        setupUsernameValidation();
+        try {
+            setupPasswordValidation();
+            setupUsernameValidation();
+
+            authenticationService = new AuthenticationServiceImpl(new SQLUserRepository(), new Argon2Hasher(), SessionManager.getInstance());
+            setupKeyStroke();
+        }
+        catch (StorageException e) {
+            AlertHelper.showError("Failed to initialize database: " + e.getMessage());
+        }
+
     }
 
     private void setupPasswordValidation() {
@@ -203,7 +220,7 @@ public class RegisterController {
 
     @FXML
     private void onCancel() {
-        //To do: return to login page
+        SafeNotesApp.getInstance().showLoginScreen();
     }
 
     private boolean validateForm() {
@@ -259,4 +276,5 @@ public class RegisterController {
         }
         return samples;
     }
+
 }

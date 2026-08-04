@@ -36,8 +36,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final Map<String, Long> blockedAccounts = new ConcurrentHashMap<>();
 
     @Override
-    public LoginResult login(LoginRequest request) throws AuthException {
-        String username = request.getUsername();
+    public LoginResult login(String username, String password) throws AuthException {
 
         //1. Check if acc is blocked
         if (isAccountBlocked(username)) {
@@ -59,7 +58,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         //3. Verify Password
         boolean passwordValid;
         try {
-            passwordValid = passwordHasher.verify(request.getPassword(), user.getPasswordHash());
+            passwordValid = passwordHasher.verify(password, user.getPasswordHash());
         }
         catch (HashingException e) {
             throw new AuthException("Authentication Error. Please try again.", e);
@@ -67,7 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (!passwordValid) {throw new AuthException("Invalid username or password");}
 
         //4. KeyStroke verification
-        if (user.isRequireKeystrokeAuth()) {
+       /*  if (user.isRequireKeystrokeAuth()) {
             boolean keyStrokeValid = verifyKeyStroke(user, request.getTypingData());
             if (!keyStrokeValid) {
                 throw new AuthException("KeyStroke pattern does not match");
@@ -82,7 +81,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             }
             locationFailures.remove(username);
         }
-
+        */
         //6. Update last login
         user.updateLastLogin();
         try {
@@ -94,6 +93,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         //7. Create session
         String sessionId = sessionManager.createSession(user);
+        sessionManager.setCurrentUser(user);
 
         return new LoginResult(true, false, user.getUserId(), sessionId, "Login successfull", null);
     }
@@ -258,5 +258,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return QRURL;
     }
+
     
 }
