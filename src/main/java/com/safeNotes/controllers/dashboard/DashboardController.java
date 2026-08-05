@@ -67,7 +67,7 @@ public class DashboardController implements Initializable {
                     }
 
                     VBox noteInfo = new VBox(2);
-                    Label titleLabel = new Label(note.getTtitle());
+                    Label titleLabel = new Label(note.getTitle());
                     titleLabel.getStyleClass().add("note-title");
 
                     Label dateLabel = new Label(note.getFormattedDate());
@@ -88,13 +88,13 @@ public class DashboardController implements Initializable {
     }
 
     private void openNote(SecureNote note) {
-        System.out.println("Opening note:" + note.getTtitle());
+        System.out.println("Opening note:" + note.getTitle());
         //TO-DO: Check if note is blurred/lock
         welcomePane.setVisible(false);
 
         //TO-DO: Load note editor in content pane
 
-        Label noteContent = new Label("Content of: " + note.getTtitle() + " ....... ");
+        Label noteContent = new Label("Content of: " + note.getTitle() + " ....... ");
 
         noteContent.setStyle("-fx-font-size: 14px; -fx-padding: 20px;");
         contentPane.getChildren().clear();
