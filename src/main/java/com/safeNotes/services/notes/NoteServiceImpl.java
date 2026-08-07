@@ -2,17 +2,21 @@ package com.safeNotes.services.notes;
 
 import java.util.List;
 
+import com.safeNotes.exceptions.HashingException;
 import com.safeNotes.exceptions.NoteAccessException;
 import com.safeNotes.exceptions.StorageException;
 import com.safeNotes.models.domain.SecureNote;
 import com.safeNotes.repositories.NoteRepository;
+import com.safeNotes.services.encryption.PasswordHasher;
 
 public class NoteServiceImpl implements NoteService {
 
     private final NoteRepository noteRepository;
+    private final PasswordHasher hasher;
 
-    public NoteServiceImpl(NoteRepository noteRepository) {
+    public NoteServiceImpl(NoteRepository noteRepository, PasswordHasher hasher) {
         this.noteRepository = noteRepository;
+        this.hasher = hasher;
     }
 
     @Override
@@ -66,7 +70,15 @@ public class NoteServiceImpl implements NoteService {
         if (pin == null || pin.length() < 4) {throw new StorageException("Pin must be at least 4 digits");}
 
         SecureNote note = getNoteById(id, userId);
-        //TODO: Hash the Pin
+
+        try {
+            String hashedPin = hasher.hashPin(pin);
+            note.setPin(hashedPin);
+        }
+        catch (HashingException e) {
+            throw new StorageException("Failed to hash Pin", e);
+        }
+
         note.setPin(pin);
         note.setLocked(true);
         note.updateTimestamp();
@@ -79,10 +91,16 @@ public class NoteServiceImpl implements NoteService {
         SecureNote note = getNoteById(id, userId);
 
         if (!note.isLocked()) {throw new StorageException("Note is not locked");}
-
-        //TODO: Verify hashed pin
-
         if (!pin.equals(note.getPin())) {throw new StorageException("Incorrect Pin");}
+        if (note.getPin() == null) {throw new StorageException("Note has no Pin");}
+
+        try {
+            boolean pinValid = hasher.verifyPin(pin, note.getPin());
+            if (!pinValid) {throw new StorageException("Incorrect Pin");}
+        }
+        catch (HashingException e) {
+            throw new StorageException("Failed to verify Pin", e);
+        }
 
         note.setLocked(false);
         note.updateTimestamp();
@@ -102,9 +120,15 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public boolean verifyPin(String id, String pin, String userId) throws NoteAccessException, StorageException {
         SecureNote note = getNoteById(id, userId);
-        //TODO: Compare hashed pin
 
-        return pin != null && pin.equals(note.getPin());
+        if (note.getPin() == null) {return false;}
+
+        try {
+            return hasher.verifyPin(pin, note.getPin());
+        }
+        catch (HashingException e) {
+            throw new StorageException("Failed to verify Pin", e);
+        }
     }
     
 }

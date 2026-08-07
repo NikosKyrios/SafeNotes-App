@@ -5,7 +5,7 @@ import java.security.SecureRandom;
 import com.safeNotes.exceptions.HashingException;
 
 public class SecureRandomGenerator {
-    public byte[] generateSalt() throws HashingException {
+    public static byte[] generateSalt(int i) throws HashingException {
         byte[] salt = new byte[16];
         try {
             SecureRandom.getInstanceStrong().nextBytes(salt);

@@ -1,53 +1,118 @@
 app/
-✅ Main.java - Entry point 
+
+✅ Main.java - Entry point
 
 config/
+
 ✅ AppConstants.java - Complete with all security constants
-✅ DatabaseConfig.java - sql connection
+
+✅ DatabaseConfig.java - SQLite connection
 
 utils/gui/
+
 ✅ ViewLoader.java - Complete FXML loading utility
 
 utils/security/
-✅ SecureRandomGenerator.java
+
+✅ SecureRandomGenerator.java - With generateSalt() method
 
 views/fxml/auth/
+
 ✅ login.fxml - Login screen layout
+
 ✅ register.fxml - Registration screen layout
 
+views/fxml/dashboard/
+
+✅ dashboard.fxml - Dashboard layout
+
 views/css/
+
 ✅ auth-styles.css - Authentication screens styling
-✅ styles.css - Global styles 
+
+✅ dashboard-styles.css - Dashboard styling
+
+✅ styles.css - Global styles
 
 models/enums/
+
 ✅ EncryptionAlgorithm.java
 
 models/dto/
+
 ✅ LoginRequest.java
+
 ✅ RegistrationRequest.java
-✅ LoginResult.java
-✅ RegistrationResult.java
+
+✅ LoginResult.java - With success, message, userId, sessionId, requires2FA
+
+✅ RegistrationResult.java - With success, userId, message, twoFactorQRUrl, remainingSamples
 
 models/domain/
+
 ✅ TypingData.java
+
 ✅ TypingProfile.java
-✅ User.java
+
+✅ User.java - Complete with userId, username, passwordHash, salt, createdAt, lastLogin
+
+✅ SecureNote.java - Complete with id, title, content, ownerId, locked, blurred, pin, securityLevel
 
 services/encryption/
-✅ EncryptionService.java 
-✅ PasswordHasher.java
+
+✅ EncryptionService.java (interface)
+
+✅ PasswordHasher.java (interface) - With hashPassword, verify, hashPin, verifyPin, needsUpgrade, upgradeHash
+
+✅ Argon2Hasher.java - Complete with all implementations
 
 services/auth/
-✅ AuthenticationService.java
-✅ AuthenticationServiceImpl.java
 
-exceptions/
-✅ EncryptionException.java
-✅ HashingException.java
-✅ AuthException.java
-✅ StorageException.java
+✅ AuthenticationService.java (interface) - With login(String, String), register(RegistrationRequest), logout, validatePasswordStrength, isUsernameAvailable, addTrusterLocation
+
+✅ AuthenticationServiceImpl.java - Complete with login, register, logout, password validation
+
+✅ SessionManager.java - Singleton with createSession, setCurrentUser, getCurrentUser, isLoggedIn, getCurrentUsername, clearSession, logout
+
+services/notes/
+
+✅ NoteService.java (interface) - With createNote, getNotesByUser, getNoteById, updateNote, deleteNote, lockNote, unlockNote, toggleBlur, verifyPin
+
+✅ NoteServiceImpl.java - Complete with all methods, uses PasswordHasher for PIN hashing
 
 repositories/
-✅ UserRepository.java (interface)
-✅ UserRepositoryImpl.java
-✅ SQLUserRepository.java - SQLite-backed user persistence implementation
+
+✅ UserRepository.java (interface) - With save, findByUsername, delete, existsByUsername, findAll
+
+✅ SQLUserRepository.java - SQLite-backed user persistence with full CRUD
+
+✅ NoteRepository.java (interface) - With save, findById, findByOwner, findAll, update, delete, exists
+
+✅ SQLNoteRepository.java - SQLite-backed note persistence with full CRUD
+
+exceptions/
+
+✅ EncryptionException.java
+
+✅ HashingException.java
+
+✅ AuthException.java
+
+✅ StorageException.java
+
+✅ NoteAccessException.java
+
+controllers/auth/
+
+✅ LoginController.java - Complete with authService integration, keystroke monitoring, navigation
+
+✅ RegisterController.java - Complete with registration, password validation, keystroke collection
+
+controllers/dashboard/
+
+✅ DashboardController.java - Complete with notes list, search, navigation, logout
+
+app/
+
+✅ SafeNotesApp.java - Complete with screen navigation (login, register, dashboard), handleExit
+

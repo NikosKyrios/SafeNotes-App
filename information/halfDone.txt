@@ -1,44 +1,21 @@
-- app/SafeNotesApp
+DashboardController.java
 
-handleExit()
+❌ updateWelcome() - Shows "Welcome, User" but doesn't show actual username
 
-- controllers/auth/LoginController
+❌ loadNotes() - Has placeholder, doesn't load from NoteService yet
 
-    private void onRegister()
-    private void onForgotPassword()
+❌ filterNotes() - Placeholder only
 
-    private void onLogin() //auth through repository-backed persistence
+❌ openNote() - Shows placeholder, doesn't open actual note editor
 
-- controllers/auth/RegisterController
+❌ openNoteEditor() - Shows placeholder
 
-    onRegister() : // Implement actual registration with database
-                  // Create user account
-                 // Handle keyStrokeCalibration
-                // Setup 2FA
+❌ onCreateNewNote() - Calls openNoteEditor, but editor doesn't exist yet
 
-    onCancel() : //return to login screen
+❌ onAccountSettings() - Placeholder only
 
-- controllers/dashboard/DashboardController
+❌ onSecuritySettings() - Placeholder only
 
-    openNote()
-    openNoteEditor()
-    filterNotes()
-    updateWelcome()
-    loadNotes()
-    onCreateNewNote()
-    onAccountSettings()
-    onSecuritySettings()
-    onLockApp()
-    onLogout()
+❌ onLockApp() - Placeholder only
 
-- encryption
-    Argon2Hasher.java
-
-        needsUpgrade()
-        upgradeHash()
-
-- repositories
-    SQLUserRepository.java
-
-        ensure schema compatibility with existing User model
-        support save/find/delete/exists/findAll operations
+❌ onLogout() - Placeholder only

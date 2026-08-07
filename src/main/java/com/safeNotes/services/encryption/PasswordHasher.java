@@ -7,4 +7,6 @@ public interface PasswordHasher {
     public boolean verify(String password, byte[] hash) throws HashingException;
     public boolean needsUpgrade(byte[] hash);
     public byte[] upgradeHash(String password, byte[] oldHash) throws HashingException;
+    String hashPin(String pin) throws HashingException;
+    boolean verifyPin(String pin, String hashedPin) throws HashingException;
 }
