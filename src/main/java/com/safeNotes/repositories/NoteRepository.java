@@ -20,4 +20,6 @@ public interface NoteRepository {
 
     boolean exists(String id) throws StorageException;
 
+    List<SecureNote> findByOwner(String ownerId) throws StorageException;
+
 }
