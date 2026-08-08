@@ -2,19 +2,36 @@ package com.safeNotes.controllers.dashboard;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import com.safeNotes.models.domain.SecureNote;
+import com.safeNotes.models.domain.User;
+import com.safeNotes.repositories.SQLNoteRepository;
+import com.safeNotes.services.auth.SessionManager;
+import com.safeNotes.services.encryption.Argon2Hasher;
+import com.safeNotes.services.notes.NoteService;
+import com.safeNotes.services.notes.NoteServiceImpl;
 import com.safeNotes.app.SafeNotesApp;
+import com.safeNotes.utils.gui.AlertHelper;
 import com.safeNotes.utils.gui.ViewLoader;
 import javafx.scene.Parent;
 
@@ -29,13 +46,23 @@ public class DashboardController implements Initializable {
     @FXML private StackPane contentPane;
     @FXML private VBox welcomePane;
     private ToggleGroup filterGroup = new ToggleGroup();
+    private NoteService noteService;
+    private User currentUser;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setupNotesListView();
-        setupSearch();
-        updateWelcome();
-        loadNotes();
+        try {
+            noteService = new NoteServiceImpl(new SQLNoteRepository(), new Argon2Hasher());
+
+            currentUser = SessionManager.getInstance().getCurrentUser();
+            setupNotesListView();
+            setupSearch();
+            updateWelcome();
+            loadNotes();
+        }
+        catch (Exception e) {
+            AlertHelper.showError("Failed to initialize: " + e.getMessage());
+        }
     }
     
     private void setupNotesListView() {
@@ -89,12 +116,14 @@ public class DashboardController implements Initializable {
 
     private void openNote(SecureNote note) {
         System.out.println("Opening note:" + note.getTitle());
-        //TO-DO: Check if note is blurred/lock
+        
+        if (note.isLocked()) {
+            promptForPinAndOpen(note);
+            return;
+        }
+
         welcomePane.setVisible(false);
-
-        //TO-DO: Load note editor in content pane
-
-        Label noteContent = new Label("Content of: " + note.getTitle() + " ....... ");
+        Label noteContent = new Label("Content of: " + note.getTitle() + "\n\n" + note.getContent());
 
         noteContent.setStyle("-fx-font-size: 14px; -fx-padding: 20px;");
         contentPane.getChildren().clear();
@@ -102,20 +131,115 @@ public class DashboardController implements Initializable {
     }
     private void openNoteEditor(SecureNote note) {
         System.out.println("Opening note editor...");
-        //TO-DO: load note editor from note_editor.fxml
-        welcomeLabel.setVisible(false);
+        welcomePane.setVisible(false);
 
-        //TO-DO: create the actual menu
-        Label editorPlaceHolder = new Label("Note Editor PlaceHolder");
+        VBox editorBox = new VBox(15);
+        editorBox.setPadding(new Insets(30));
+        editorBox.setStyle("-fx-background-color: white;");
 
-        editorPlaceHolder.setStyle("-fx-font-size: 14px; -fx-padding: 20px;");
-        contentPane.getChildren().clear();
-        contentPane.getChildren().add(editorPlaceHolder);
+        TextField titleField = new TextField();
+        titleField.setPromptText("Note title...");
+        titleField.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        if (note != null) {
+            titleField.setText(note.getTitle());
+        }
+
+        TextArea contentArea = new TextArea();
+        contentArea.setPromptText("Write your note here...");
+        contentArea.setWrapText(true);
+        contentArea.setPrefHeight(400);
+        contentArea.setStyle("-fx-font-size: 14px;");
+        if (note != null) {
+            contentArea.setText(note.getContent());
+        }
+
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        Button saveButton = new Button("💾 Save");
+        saveButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        saveButton.setOnAction(e -> {
+            try {
+                String title = titleField.getText().trim();
+                String content = contentArea.getText();
+
+                if (title.isEmpty()) {
+                    AlertHelper.showError("Please enter a title");
+                    return;
+                }
+
+                if (note != null) {
+                    noteService.updateNote(note.getId(), title, content, currentUser.getUserId());
+                    AlertHelper.showSuccess("Note update!");
+                }
+                else {
+                    noteService.createNote(title, content, currentUser.getUserId());
+                    AlertHelper.showSuccess("Note created!");
+                }
+
+                loadNotes();
+                showWelcomePane();
+            }
+            catch (Exception ex) {
+                AlertHelper.showError("Failed to save: " + ex.getMessage());
+            }
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white;");
+        cancelButton.setOnAction(e -> showWelcomePane());
+
+    if (note != null) {
+        HBox securityBox = new HBox(10);
+        securityBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        
+        CheckBox lockCheck = new CheckBox("🔒 Lock");
+        lockCheck.setSelected(note.isLocked());
+        
+        CheckBox blurCheck = new CheckBox("👁️ Blur");
+        blurCheck.setSelected(note.isBlurred());
+        
+        Button pinButton = new Button("Set PIN");
+        pinButton.setOnAction(e -> {
+            TextInputDialog pinDialog = new TextInputDialog();
+            pinDialog.setTitle("Set PIN");
+            pinDialog.setHeaderText("Set a PIN for this note");
+            pinDialog.setContentText("Enter 4-digit PIN:");
+            pinDialog.showAndWait().ifPresent(pin -> {
+                if (pin.length() >= 4) {
+                    try {
+                        noteService.lockNote(note.getId(), pin, currentUser.getUserId());
+                        loadNotes();
+                        AlertHelper.showSuccess("PIN set and note locked!");
+                    } catch (Exception ex) {
+                        AlertHelper.showError("Failed to set PIN: " + ex.getMessage());
+                    }
+                } else {
+                    AlertHelper.showError("PIN must be at least 4 digits");
+                }
+            });
+        });
+        
+        securityBox.getChildren().addAll(lockCheck, blurCheck, pinButton);
+        editorBox.getChildren().add(securityBox);
+    }
+    
+    buttonBox.getChildren().addAll(saveButton, cancelButton);
+    editorBox.getChildren().addAll(titleField, contentArea, buttonBox);
+    
+    contentPane.getChildren().clear();
+    contentPane.getChildren().add(editorBox);
 
     }
     private void filterNotes(String text) {
-        // TO-DO: Implement filtering
-        System.out.println("blah blah");
+        if (text == null || text.trim().isEmpty()) {
+            loadNotes();
+            return;
+        }
+        String lowerSearch = text.toLowerCase().trim();
+        List<SecureNote> filtered = notesListView.getItems().stream().filter(note -> note.getTitle().toLowerCase().contains(lowerSearch)).collect(Collectors.toList());
+        notesListView.getItems().setAll(filtered);
+        updateStatus("Found " + filtered.size() + " notes");
     }
     private void setupSearch() {
         searcField.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -123,13 +247,26 @@ public class DashboardController implements Initializable {
         });
     }
     private void updateWelcome() {
-        //TO-DO: load actual username
-        welcomeLabel.setText("Welcome ");
+        if (currentUser != null) {
+            welcomeLabel.setText("Welcome, " + currentUser.getUsername() + "!");
+        }
+        else {
+            welcomeLabel.setText("Welcome, User");
+        }
     }
     private void loadNotes() {
-        //TO-DO: load actual notes
-
-        updateStatus("Loaded " + notesListView.getItems().size() + " notes");
+        if (currentUser == null) {
+            updateStatus("No user logged in");
+            return;
+        }
+        try {
+            List<SecureNote> notes = noteService.getNotesByUser(currentUser.getUserId());
+            notesListView.getItems().setAll(notes);
+            updateStatus("Loaded " + notes.size() + " notes");
+        }
+        catch (Exception e) {
+            updateStatus("Error loading notes: " + e.getMessage());
+        }
     }
     private void updateStatus(String message) {
         statusLabel.setText(message);
@@ -138,20 +275,17 @@ public class DashboardController implements Initializable {
 
     @FXML
     private void onLockApp() {
-        System.out.println("Locking app...");
-        //TO-DO: Clear sensitive data and return to login
+        SessionManager.getInstance().clearSession();
         goToLogin();
     }
     @FXML
     private void onLogout() {
-        System.out.println("Logging out...");
-        //TO-DO: Clear session data
+        SessionManager.getInstance().clearSession();
         goToLogin();
     }
     @FXML
     private void onCreateNewNote() {
         System.out.println("Creating new Note...");
-        //TO-DO: Open note editor
         openNoteEditor(null); // new note
     }
     @FXML
@@ -162,19 +296,16 @@ public class DashboardController implements Initializable {
     }
     @FXML
     private void onAccountSettings() {
-        System.out.println("Opening Account Settings...");
-        //TO-DO: Open actual Account Settings list
+        AlertHelper.showInfo("Account settings will be available later");
     }
     @FXML
     private void onSecuritySettings() {
-        System.out.println("Opening Security Settings...");
-        //TO-DO: Open actual Security Settings list
+        AlertHelper.showInfo("Security settings will be available later");
     } 
 
     private void goToLogin() {
         try {
-            SafeNotesApp app = new SafeNotesApp();
-            app.showLoginScreen();
+            SafeNotesApp.getInstance().showLoginScreen();
         } 
         catch (NullPointerException e) {
             System.err.println("Resource not found(CSS, icon)");
@@ -182,5 +313,35 @@ public class DashboardController implements Initializable {
         catch (Exception e) {
             System.err.println("Error navigating to login: " + e.getMessage());
         }
+    }
+
+    private void promptForPinAndOpen(SecureNote note) {
+        TextInputDialog pinDialog = new TextInputDialog();
+        pinDialog.setTitle("Note Locked");
+        pinDialog.setHeaderText("This note is locked");
+        pinDialog.setContentText("Enter PIN to unlock:");
+
+        pinDialog.showAndWait().ifPresent(pin -> {
+            try {
+                if (noteService.verifyPin(note.getId(), pin, currentUser.getUserId())) {
+                    noteService.unlockNote(note.getId(), pin, currentUser.getUserId());
+                    loadNotes();
+                    SecureNote updated = noteService.getNoteById(note.getId(), currentUser.getUserId());
+                    openNote(updated);
+                }
+                else {
+                    AlertHelper.showError("Incorrect Pin");
+                }
+            }
+            catch (Exception e) {
+                AlertHelper.showError("Failed to unlock: " + e.getMessage());
+            }
+        });
+    }
+
+    private void showWelcomePane() {
+        welcomePane.setVisible(true);
+        contentPane.getChildren().clear();
+        contentPane.getChildren().add(welcomePane);
     }
 }
