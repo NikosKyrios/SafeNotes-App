@@ -41,4 +41,14 @@ public class ViewLoader {
         modalStage.setResizable(false);
         return modalStage;
     }
+
+    public static Parent loadParent(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(ViewLoader.class.getResource(fxmlPath));
+            return loader.load();
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Failed to load FXML: " + fxmlPath, e);
+        }
+    }
 }

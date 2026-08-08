@@ -8,6 +8,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
@@ -31,6 +32,7 @@ import com.safeNotes.services.encryption.Argon2Hasher;
 import com.safeNotes.services.notes.NoteService;
 import com.safeNotes.services.notes.NoteServiceImpl;
 import com.safeNotes.app.SafeNotesApp;
+import com.safeNotes.controllers.notes.NoteEditorController;
 import com.safeNotes.utils.gui.AlertHelper;
 import com.safeNotes.utils.gui.ViewLoader;
 import javafx.scene.Parent;
@@ -130,106 +132,25 @@ public class DashboardController implements Initializable {
         contentPane.getChildren().add(noteContent);
     }
     private void openNoteEditor(SecureNote note) {
-        System.out.println("Opening note editor...");
-        welcomePane.setVisible(false);
+        try {
+            welcomePane.setVisible(false);
 
-        VBox editorBox = new VBox(15);
-        editorBox.setPadding(new Insets(30));
-        editorBox.setStyle("-fx-background-color: white;");
+            //Load note editor
+            Parent editorRoot = ViewLoader.loadParent("/com/safeNotes/views/fxml/notes/note_editor.fxml");
 
-        TextField titleField = new TextField();
-        titleField.setPromptText("Note title...");
-        titleField.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-        if (note != null) {
-            titleField.setText(note.getTitle());
+            //Get controller
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/safeNotes/views/fxml/notes/note_editor.fxml"));
+            Parent root = loader.load();
+            NoteEditorController controller = loader.getController();
+            controller.loadNote(note);
+
+            contentPane.getChildren().clear();
+            contentPane.getChildren().add(root);
         }
-
-        TextArea contentArea = new TextArea();
-        contentArea.setPromptText("Write your note here...");
-        contentArea.setWrapText(true);
-        contentArea.setPrefHeight(400);
-        contentArea.setStyle("-fx-font-size: 14px;");
-        if (note != null) {
-            contentArea.setText(note.getContent());
+        catch (Exception e) {
+            AlertHelper.showError("Failed to open editor: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        HBox buttonBox = new HBox(10);
-        buttonBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        Button saveButton = new Button("💾 Save");
-        saveButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
-
-        saveButton.setOnAction(e -> {
-            try {
-                String title = titleField.getText().trim();
-                String content = contentArea.getText();
-
-                if (title.isEmpty()) {
-                    AlertHelper.showError("Please enter a title");
-                    return;
-                }
-
-                if (note != null) {
-                    noteService.updateNote(note.getId(), title, content, currentUser.getUserId());
-                    AlertHelper.showSuccess("Note update!");
-                }
-                else {
-                    noteService.createNote(title, content, currentUser.getUserId());
-                    AlertHelper.showSuccess("Note created!");
-                }
-
-                loadNotes();
-                showWelcomePane();
-            }
-            catch (Exception ex) {
-                AlertHelper.showError("Failed to save: " + ex.getMessage());
-            }
-        });
-
-        Button cancelButton = new Button("Cancel");
-        cancelButton.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white;");
-        cancelButton.setOnAction(e -> showWelcomePane());
-
-    if (note != null) {
-        HBox securityBox = new HBox(10);
-        securityBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        
-        CheckBox lockCheck = new CheckBox("🔒 Lock");
-        lockCheck.setSelected(note.isLocked());
-        
-        CheckBox blurCheck = new CheckBox("👁️ Blur");
-        blurCheck.setSelected(note.isBlurred());
-        
-        Button pinButton = new Button("Set PIN");
-        pinButton.setOnAction(e -> {
-            TextInputDialog pinDialog = new TextInputDialog();
-            pinDialog.setTitle("Set PIN");
-            pinDialog.setHeaderText("Set a PIN for this note");
-            pinDialog.setContentText("Enter 4-digit PIN:");
-            pinDialog.showAndWait().ifPresent(pin -> {
-                if (pin.length() >= 4) {
-                    try {
-                        noteService.lockNote(note.getId(), pin, currentUser.getUserId());
-                        loadNotes();
-                        AlertHelper.showSuccess("PIN set and note locked!");
-                    } catch (Exception ex) {
-                        AlertHelper.showError("Failed to set PIN: " + ex.getMessage());
-                    }
-                } else {
-                    AlertHelper.showError("PIN must be at least 4 digits");
-                }
-            });
-        });
-        
-        securityBox.getChildren().addAll(lockCheck, blurCheck, pinButton);
-        editorBox.getChildren().add(securityBox);
-    }
-    
-    buttonBox.getChildren().addAll(saveButton, cancelButton);
-    editorBox.getChildren().addAll(titleField, contentArea, buttonBox);
-    
-    contentPane.getChildren().clear();
-    contentPane.getChildren().add(editorBox);
-
     }
     private void filterNotes(String text) {
         if (text == null || text.trim().isEmpty()) {

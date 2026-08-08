@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.safeNotes.controllers.notes.NoteEditorController"
+      spacing="15" styleClass="note-editor"
+      stylesheets="@../../css/notes-styles.css"
+      prefWidth="700" prefHeight="600">
+
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    -- Title --
+    <TextField fx:id="titleField" promptText="Enter note title..."
+               styleClass="editor-title"/>
+
+    -- Content --
+    <TextArea fx:id="contentArea" promptText="Write your note here..."
+              wrapText="true" VBox.vgrow="ALWAYS"
+              styleClass="editor-content"/>
+
+    -- Security Options --
+    <VBox spacing="10" styleClass="security-options">
+        <Label text="Security Options" styleClass="section-label"/>
+
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            -- Lock Toggle --
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <CheckBox fx:id="lockCheck" text="🔒 Locked"/>
+                <Button fx:id="setPinButton" text="Set PIN"
+                        styleClass="pin-button"
+                        onAction="#onSetPin"/>
+            </HBox>
+
+            -- Blur Toggle --
+            <CheckBox fx:id="blurCheck" text="👁️ Blurred"/>
+
+            -- Security Level --
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Security:"/>
+                <ComboBox fx:id="securityLevelCombo" styleClass="security-combo"/>
+            </HBox>
+        </HBox>
+
+        -- PIN Status --
+        <Label fx:id="pinStatusLabel" styleClass="pin-status" visible="false"/>
+    </VBox>
+
+    -- Buttons --
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button text="Cancel" styleClass="secondary-button"
+                onAction="#onCancel"/>
+        <Button text="Save Note" styleClass="primary-button"
+                onAction="#onSave"/>
+    </HBox>
+
+</VBox>
