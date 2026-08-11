@@ -14,7 +14,6 @@ import com.safeNotes.services.auth.AuthenticationService;
 import com.safeNotes.services.auth.AuthenticationServiceImpl;
 import com.safeNotes.services.auth.SessionManager;
 import com.safeNotes.utils.gui.AlertHelper;
-import com.safeNotes.utils.gui.ViewLoader;
 import com.safeNotes.repositories.SQLUserRepository;
 import com.safeNotes.services.encryption.Argon2Hasher;
 
@@ -25,7 +24,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 public class RegisterController {
 

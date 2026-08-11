@@ -2,7 +2,6 @@ package com.safeNotes.controllers.auth;
 
 import com.safeNotes.app.SafeNotesApp;
 import com.safeNotes.exceptions.StorageException;
-import com.safeNotes.models.domain.User;
 import com.safeNotes.services.auth.AuthenticationService;
 import com.safeNotes.services.auth.AuthenticationServiceImpl;
 import com.safeNotes.repositories.SQLUserRepository;
@@ -14,10 +13,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.*;
 
 public class LoginController {
-    @FXML private TextField usernamField;
+    @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private ProgressIndicator typingProgress;
     @FXML private CheckBox rememberMe;
@@ -62,23 +60,23 @@ public class LoginController {
     }
 
     private void InputValidation() {
-        usernamField.textProperty().addListener((obs, oldVal, newVal) -> {
+        usernameField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal.length() < 4) {
-                usernamField.setStyle("-fx-border-color: #ff4444;");
+                usernameField.setStyle("-fx-border-color: #ff4444;");
             }
             else {
-                usernamField.setStyle("");
+                usernameField.setStyle("");
             }
         });
     }
 
     @FXML
     private void onLogin() {
-        String username = usernamField.getText().trim();
+        String username = usernameField.getText().trim();
         String password = passwordField.getText();
 
         if (username.isEmpty() || password.isEmpty()) {
-            showError("Please enter both username and password");
+            AlertHelper.showError("Please enter both username and password");
             return;
         }
 
@@ -94,7 +92,7 @@ public class LoginController {
             }
             else {
                 loginAttempts++;
-                showError(result.getMessage());
+                AlertHelper.showError(result.getMessage());
 
                 if (loginAttempts >= 3) {
                     securityStatusBox.setVisible(true);
@@ -104,7 +102,7 @@ public class LoginController {
             }
         } 
         catch (Exception e) {
-            showError("Login error: " + e.getMessage());
+            AlertHelper.showError("Login error: " + e.getMessage());
             e.printStackTrace();
         }
         passwordField.clear();
@@ -134,11 +132,4 @@ public class LoginController {
         }
     }
 
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Login Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 }

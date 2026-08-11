@@ -1,23 +1,16 @@
 package com.safeNotes.controllers.dashboard;
 
-import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;

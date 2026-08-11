@@ -10,7 +10,6 @@ import com.safeNotes.exceptions.StorageException;
 import com.safeNotes.models.domain.TypingData;
 import com.safeNotes.models.domain.TypingProfile;
 import com.safeNotes.models.domain.User;
-import com.safeNotes.models.dto.LoginRequest;
 import com.safeNotes.models.dto.LoginResult;
 import com.safeNotes.models.dto.RegistrationRequest;
 import com.safeNotes.models.dto.RegistrationResult;

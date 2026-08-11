@@ -48,7 +48,7 @@ public class SafeNotesApp extends Application {
 
     public void showRegisterScreen() {
         try {
-            Scene registerScene = ViewLoader.loadScene("/com/safeNotes/views/fxml/auth/registere.fxml");
+            Scene registerScene = ViewLoader.loadScene("/com/safeNotes/views/fxml/auth/register.fxml");
             primaryStage.setScene(registerScene);
             primaryStage.centerOnScreen();
             primaryStage.show();
@@ -83,7 +83,4 @@ public class SafeNotesApp extends Application {
         return instance;
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
 }

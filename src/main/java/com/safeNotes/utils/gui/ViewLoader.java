@@ -7,7 +7,7 @@ import javafx.stage.Modality; //controls if a window blocks another one
 import javafx.stage.Stage;
 import java.io.IOException;
 
-import javax.management.RuntimeErrorException; 
+
 
 public class ViewLoader {
     public static Scene loadScene(String fxmlPath) {
