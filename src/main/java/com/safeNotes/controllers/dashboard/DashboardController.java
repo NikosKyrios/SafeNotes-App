@@ -36,7 +36,7 @@ public class DashboardController implements Initializable {
     @FXML private Label statusLabel;
     @FXML private Label securityStatusLabel;
     @FXML private Label lastSyncLabel;
-    @FXML private TextField searcField;
+    @FXML private TextField searchField;
     @FXML private ListView<SecureNote> notesListView;
     @FXML private StackPane contentPane;
     @FXML private VBox welcomePane;
@@ -156,7 +156,7 @@ public class DashboardController implements Initializable {
         updateStatus("Found " + filtered.size() + " notes");
     }
     private void setupSearch() {
-        searcField.textProperty().addListener((obs, oldVal, newVal) -> {
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
             filterNotes(newVal);
         });
     }

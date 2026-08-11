@@ -88,17 +88,17 @@ public class RegisterController {
     private void validatePassword(String password) {
         //check requirements
         boolean lengthOk = password.length() >= 10;
-        boolean hasUpper = !password.equals(password.toLowerCase());
-        boolean hasLower = !password.equals(password.toUpperCase());
+        boolean hasUpper = password.matches(".*[A-Z].*");
+        boolean hasLower = password.matches(".*[a-z].*");
         boolean hasDigit = password.matches(".*\\d.*");
         boolean hasSpecial = password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*");
 
         //update requirements
-        updateRequirementLabel(lengthReq, lengthOk, "✓ At least 10 charachters");
+        updateRequirementLabel(lengthReq, lengthOk, "✓ At least 10 characters");
         updateRequirementLabel(upperReq, hasUpper, "✓ Upperace letter");
         updateRequirementLabel(lowerReq, hasLower, "✓ LowerCase letter");
         updateRequirementLabel(digitReq, hasDigit, "✓ Number");
-        updateRequirementLabel(specialReq, hasSpecial, "✓ Special charachter");
+        updateRequirementLabel(specialReq, hasSpecial, "✓ Special character");
 
         //calculate strength score
         int score = 0;
@@ -135,12 +135,12 @@ public class RegisterController {
     private void updateRequirementLabel(Label label, boolean met, String text) {
         label.setText(text);
 
+        label.getStyleClass().removeAll("requirement-met", "requirement-unmet");
+
         if (met) {
-            label.getStyleClass().remove("requirement-unmet");
             label.getStyleClass().add("requirement-met");
         }
         else {
-            label.getStyleClass().remove("requirement-met");
             label.getStyleClass().add("requirement-unmet");
         }
     }
@@ -245,21 +245,39 @@ public class RegisterController {
 
     private void setupKeyStroke() {
         passwordField.setOnKeyPressed(event -> {
-            if (passwordField.getText().isEmpty()) {
-                typingStartTime = System.currentTimeMillis();
+
+            if (sampleCount >= AppConstants.KEYSTROKE_SAMPLES_REQUIRED) {return;}
+
+            if (event.getCode().isLetterKey() || event.getCode().isDigitKey()) {
+                if (passwordField.getText().isEmpty()) {
+                    typingStartTime = System.currentTimeMillis();
+                    sampleCount = 0;
+                    typingSamples.clear();
+                }
             }
         });
 
         passwordField.setOnKeyReleased(event -> {
             String password = passwordField.getText();
-            if (!password.isEmpty() && sampleCount < AppConstants.KEYSTROKE_SAMPLES_REQUIRED) {
-                long elapsed = System.currentTimeMillis() - typingStartTime;
-                typingSamples.add(elapsed);
-                sampleCount++;
+            if (event.getCode().isLetterKey() || event.getCode().isDigitKey() && !password.isEmpty() && sampleCount < AppConstants.KEYSTROKE_SAMPLES_REQUIRED) {
 
-                if (sampleCount == AppConstants.KEYSTROKE_SAMPLES_REQUIRED) {
-                    System.out.println("KeyStroke samples collected: " + typingSamples);
+                if (password.length() > 1) {
+
+                    long currentTime = System.currentTimeMillis();
+                    long timeBetween = currentTime - typingStartTime;
+
+                    typingStartTime = currentTime;
+                    if (timeBetween > 50 && timeBetween < 3000) {
+ 
+                        typingSamples.add(timeBetween);
+                        sampleCount++;
+                        System.out.println("KeyStroke samples collected: " + typingSamples);
+                    }
                 }
+            }
+
+            if (sampleCount >= AppConstants.KEYSTROKE_SAMPLES_REQUIRED) {
+                System.out.println("KeyStroke samples collected: " + typingSamples);
             }
         });
     }

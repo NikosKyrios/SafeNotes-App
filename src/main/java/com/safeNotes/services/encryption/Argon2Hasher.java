@@ -2,7 +2,6 @@ package com.safeNotes.services.encryption;
 
 import java.util.Base64;
 
-import com.fasterxml.jackson.databind.JsonSerializable.Base;
 import com.safeNotes.exceptions.HashingException;
 import com.safeNotes.utils.security.SecureRandomGenerator;
 

@@ -7,7 +7,7 @@
 
 <BorderPane xmlns = "http://javafx.com/javafx"
             xmlns:fx = "http://javafx.com/fxml"
-            fx:controller = "com.safenotes.controllers.dashboard.DashboardController"
+            fx:controller = "com.safeNotes.controllers.dashboard.DashboardController"
             stylesheets = "@../../css/style.css"
             prefWidth = "1000" prefHeight = "700">
     <!--Top Bar-->
