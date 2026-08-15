@@ -2,6 +2,7 @@ package com.safeNotes.services.notes;
 
 import java.util.List;
 
+import com.safeNotes.exceptions.HashingException;
 import com.safeNotes.exceptions.NoteAccessException;
 import com.safeNotes.exceptions.StorageException;
 import com.safeNotes.models.domain.SecureNote;
@@ -20,7 +21,7 @@ public interface NoteService {
 
     SecureNote lockNote(String id, String pin, String userId) throws NoteAccessException, StorageException;
 
-    SecureNote unlockNote(String id, String pin, String userId) throws NoteAccessException, StorageException;
+    SecureNote unlockNote(String id, String pin, String userId) throws NoteAccessException, StorageException, HashingException;
 
     SecureNote toggleBlur(String id, String userId) throws NoteAccessException, StorageException;
 

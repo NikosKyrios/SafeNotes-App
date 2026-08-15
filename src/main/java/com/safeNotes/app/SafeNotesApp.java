@@ -24,7 +24,6 @@ public class SafeNotesApp extends Application {
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(600);
         
-        primaryStage.setAlwaysOnTop(true); //prevent from screenshots (WEAK!!!)
         
         primaryStage.setOnCloseRequest(event -> {
             event.consume();

@@ -123,7 +123,7 @@ public class NoteEditorController implements Initializable {
                 applySecuritySettings(currentNote);
                 AlertHelper.showSuccess("Note updated");
             }
-            closeEditor();
+
         }
         catch (Exception e) {
             AlertHelper.showError("Failed to save note: " + e.getMessage());

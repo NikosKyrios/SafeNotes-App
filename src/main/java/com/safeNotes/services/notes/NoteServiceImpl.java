@@ -72,14 +72,12 @@ public class NoteServiceImpl implements NoteService {
         SecureNote note = getNoteById(id, userId);
 
         try {
-            String hashedPin = hasher.hashPin(pin);
-            note.setPin(hashedPin);
+            note.setPin(hasher.hashPin(pin));
         }
         catch (HashingException e) {
             throw new StorageException("Failed to hash Pin", e);
         }
 
-        note.setPin(pin);
         note.setLocked(true);
         note.updateTimestamp();
         noteRepository.update(note);
@@ -91,12 +89,10 @@ public class NoteServiceImpl implements NoteService {
         SecureNote note = getNoteById(id, userId);
 
         if (!note.isLocked()) {throw new StorageException("Note is not locked");}
-        if (!pin.equals(note.getPin())) {throw new StorageException("Incorrect Pin");}
         if (note.getPin() == null) {throw new StorageException("Note has no Pin");}
 
         try {
-            boolean pinValid = hasher.verifyPin(pin, note.getPin());
-            if (!pinValid) {throw new StorageException("Incorrect Pin");}
+            if (!hasher.verifyPin(pin, note.getPin())) {throw new StorageException("Incorrect Pin");}
         }
         catch (HashingException e) {
             throw new StorageException("Failed to verify Pin", e);

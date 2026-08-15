@@ -17,6 +17,8 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+
 import com.safeNotes.models.domain.SecureNote;
 import com.safeNotes.models.domain.User;
 import com.safeNotes.repositories.SQLNoteRepository;
@@ -144,6 +146,7 @@ public class DashboardController implements Initializable {
             AlertHelper.showError("Failed to open editor: " + e.getMessage());
             e.printStackTrace();
         }
+        loadNotes();
     }
     private void filterNotes(String text) {
         if (text == null || text.trim().isEmpty()) {
@@ -231,6 +234,7 @@ public class DashboardController implements Initializable {
 
     private void promptForPinAndOpen(SecureNote note) {
         TextInputDialog pinDialog = new TextInputDialog();
+        pinDialog.initModality(Modality.APPLICATION_MODAL);
         pinDialog.setTitle("Note Locked");
         pinDialog.setHeaderText("This note is locked");
         pinDialog.setContentText("Enter PIN to unlock:");
@@ -240,6 +244,7 @@ public class DashboardController implements Initializable {
                 if (noteService.verifyPin(note.getId(), pin, currentUser.getUserId())) {
                     noteService.unlockNote(note.getId(), pin, currentUser.getUserId());
                     loadNotes();
+                    notesListView.getSelectionModel().clearSelection();
                     SecureNote updated = noteService.getNoteById(note.getId(), currentUser.getUserId());
                     openNote(updated);
                 }
