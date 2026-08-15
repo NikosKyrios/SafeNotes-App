@@ -71,7 +71,7 @@
                         
                         <!-- Keystroke Dynamics -->
                         <VBox spacing="8">
-                            <CheckBox fx:id="enableKeystrokeCheck" text="Enable Keystroke Dynamics"
+                            <CheckBox fx:id="enableKeyStrokeCheck" text="Enable Keystroke Dynamics"
                                       selected="true"/>
                             <VBox spacing="5" fx:id="keystrokeInfoBox" visible="false">
                                 <Label text="Type your password 3 times to calibrate:" 

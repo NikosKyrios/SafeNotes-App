@@ -16,11 +16,11 @@
             <!--App logo or title-->
             <HBox alignment = "CENTER_LEFT" spacing = "10">
                 <Label text = "🔐" styleClass = "app-icon"/>
-                <Vbox spacing = "2">
+                <VBox spacing = "2">
                     <Label text = "SafeNotes" styleClass = "app-title"/>
                     <Label fx:id = "welcomeLabel" text = "Welcome, User" styleClass = "welcome-text"/>
-                </Vbox>
-            </Hbox>
+                </VBox>
+            </HBox>
 
             <Region HBox.hgrow = "ALWAYS"/>
 
@@ -33,7 +33,7 @@
                     <MenuItem text = "Security Settings" onAction = "#onSecuritySettings"/>
                     <MenuItem text = "Account Settings" onAction = "#onAccountSettings"/>
                     <SeparatorMenuItem/>
-                    <MenuItem text = "Lock App" onAction = "#onlockApp"/>
+                    <MenuItem text = "Lock App" onAction = "#onLockApp"/>
                     <MenuItem text = "Logout" onAction = "#onLogout"/>
                 </items>
             </MenuButton>
@@ -47,10 +47,16 @@
             <HBox alignment="CENTER" styleClass="sidebar-header">
                 <Label text="Your Notes" styleClass="sidebar-title"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button text="+" onAction="#onCreateNewNote" styleClass="icon-button" 
-                        tooltip="Create new note"/>
-                <Button text="🔄" onAction="#onRefresh" styleClass="icon-button"
-                        tooltip="Refresh list"/>
+                <Button text="+" onAction="#onCreateNewNote" styleClass="icon-button">
+                    <tooltip>
+                        <Tooltip text="Create new note"/>
+                    </tooltip>
+                </Button>
+                <Button text="🔄" onAction="#onRefresh" styleClass="icon-button">
+                    <tooltip>
+                        <Tooltip text="Refresh list"/>
+                    </tooltip>
+                </Button>
             </HBox>
             
             <!-- Notes List -->

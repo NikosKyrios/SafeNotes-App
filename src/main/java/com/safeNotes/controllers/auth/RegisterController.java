@@ -43,7 +43,7 @@ public class RegisterController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
-    @FXML private CheckBox enableKeyStrokeCkeck;
+    @FXML private CheckBox enableKeyStrokeCheck;
     @FXML private CheckBox enableTwoFactorCheck;
     @FXML private CheckBox enableAutoLockCheck;
     @FXML private CheckBox termsCheck;
@@ -182,7 +182,7 @@ public class RegisterController {
 
         //Collect samples for keyStroke
         List<TypingData> typingSamples = null;
-        if (enableKeyStrokeCkeck.isSelected()) {
+        if (enableKeyStrokeCheck.isSelected()) {
             typingSamples = collectTypingSamples();
             if (typingSamples == null || typingSamples.size() < 2) {
                 AlertHelper.showError("Type your password 2 times for keyStroke");
@@ -193,7 +193,7 @@ public class RegisterController {
         RegistrationRequest request = new RegistrationRequest();
         request.setUsername(usernameField.getText().trim());
         request.setPassword(passwordField.getText());
-        request.setEnableKeyStroke(enableKeyStrokeCkeck.isSelected());
+        request.setEnableKeyStroke(enableKeyStrokeCheck.isSelected());
         request.setEnable2FA(enableTwoFactorCheck.isSelected());
         request.setEnableLocationCheck(false);
         request.setAutoLockEnabled(enableAutoLockCheck.isSelected());
