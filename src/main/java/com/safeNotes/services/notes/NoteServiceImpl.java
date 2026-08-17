@@ -2,30 +2,21 @@ package com.safeNotes.services.notes;
 
 import java.util.List;
 
-
-import java.util.Base64;
-
-import com.safeNotes.exceptions.EncryptionException;
 import com.safeNotes.exceptions.HashingException;
 import com.safeNotes.exceptions.NoteAccessException;
 import com.safeNotes.exceptions.StorageException;
 import com.safeNotes.models.domain.SecureNote;
 import com.safeNotes.repositories.NoteRepository;
-import com.safeNotes.services.encryption.EncryptionService;
 import com.safeNotes.services.encryption.PasswordHasher;
 
 public class NoteServiceImpl implements NoteService {
 
     private final NoteRepository noteRepository;
     private final PasswordHasher hasher;
-    private final EncryptionService encryptionService;
-    private final byte[] encryptionKey;
 
-    public NoteServiceImpl(NoteRepository noteRepository, PasswordHasher hasher, EncryptionService encryptionService, byte[] encryptionKey) {
+    public NoteServiceImpl(NoteRepository noteRepository, PasswordHasher hasher) {
         this.noteRepository = noteRepository;
         this.hasher = hasher;
-        this.encryptionService = encryptionService;
-        this.encryptionKey = encryptionKey;
     }
 
     @Override
@@ -36,14 +27,6 @@ public class NoteServiceImpl implements NoteService {
 
         SecureNote note = new SecureNote(title, content, ownerId);
 
-        try {
-            byte[] encrypted = encryptionService.encrypt(content, encryptionKey);
-            note.setContent(Base64.getEncoder().encodeToString(encrypted));           
-        } 
-        catch (EncryptionException e) {
-            throw new StorageException("Failed to encrypt note", e);
-        }
-
         noteRepository.save(note);
         return note;
     }
@@ -52,21 +35,6 @@ public class NoteServiceImpl implements NoteService {
     public List<SecureNote> getNotesByUser(String ownerid) throws StorageException {
         if (ownerid == null || ownerid.trim().isEmpty()) {
             throw new StorageException("User Id cannot be empty");
-        }
-
-        List<SecureNote> notes = noteRepository.findByOwner(ownerid);
-
-        for (SecureNote note : notes) {
-            try {
-                if (note.getContent() != null && !note.getContent().isEmpty()) {
-                    byte[] encrypted = Base64.getDecoder().decode(note.getContent());
-                    String decrypted = encryptionService.decrypt(encrypted, encryptionKey);
-                    note.setContent(decrypted);
-                }
-            }
-            catch (Exception e) {
-                note.setContent("[Encrypted content - unable to decrypt]");
-            }
         }
 
         return noteRepository.findByOwner(ownerid);
@@ -80,15 +48,6 @@ public class NoteServiceImpl implements NoteService {
             throw new NoteAccessException("You don't have permission to access this note");
         }
 
-        try {
-            byte[] encrypted = Base64.getDecoder().decode(note.getContent());
-            String decrypted = encryptionService.decrypt(encrypted, encryptionKey);
-            note.setContent(decrypted);
-        }
-        catch (EncryptionException e) {
-            throw new StorageException("Failed to decrypt note", e);
-        }
-
         return note;
     }
 
@@ -97,16 +56,7 @@ public class NoteServiceImpl implements NoteService {
             throws NoteAccessException, StorageException {
         SecureNote note = getNoteById(id, userId);
         note.setTitle(title);
-
-
-        try {
-            byte[] encrypted = encryptionService.encrypt(content, encryptionKey);
-            note.setContent(Base64.getEncoder().encodeToString(encrypted));
-        } 
-        catch (EncryptionException e) {
-            throw new StorageException("Failed to encrypt note", e);
-        }
-
+        note.setContent(content);
         note.updateTimestamp();
         noteRepository.update(note);
         return note;
@@ -125,7 +75,11 @@ public class NoteServiceImpl implements NoteService {
     public SecureNote lockNote(String id, String pin, String userId) throws NoteAccessException, StorageException {
         if (pin == null || pin.length() < 4) {throw new StorageException("Pin must be at least 4 digits");}
 
-        SecureNote note = getNoteById(id, userId);
+        SecureNote note = noteRepository.findById(id).orElseThrow(() -> new NoteAccessException("Note not found"));
+
+        if (!note.getOwnerId().equals(userId)) {
+            throw new NoteAccessException("You don't have permission to lock this note");
+        }
 
         try {
             note.setPin(hasher.hashPin(pin));
@@ -142,7 +96,11 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public SecureNote unlockNote(String id, String pin, String userId) throws NoteAccessException, StorageException {
-        SecureNote note = getNoteById(id, userId);
+        SecureNote note = noteRepository.findById(id).orElseThrow(() -> new NoteAccessException("Note not found"));
+
+        if (!note.getOwnerId().equals(userId)) {
+            throw new NoteAccessException("You don't have permission to lock this note");
+        }
 
         if (!note.isLocked()) {throw new StorageException("Note is not locked");}
         if (note.getPin() == null) {throw new StorageException("Note has no Pin");}
@@ -171,7 +129,11 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public boolean verifyPin(String id, String pin, String userId) throws NoteAccessException, StorageException {
-        SecureNote note = getNoteById(id, userId);
+        SecureNote note = noteRepository.findById(id).orElseThrow(() -> new NoteAccessException("Note not found"));
+
+        if (!note.getOwnerId().equals(userId)) {
+            throw new NoteAccessException("You don't have permission to lock this note");
+        }
 
         if (note.getPin() == null) {return false;}
 

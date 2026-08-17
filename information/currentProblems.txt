@@ -1,10 +1,8 @@
 multiple notes created
-delete note (pin asked if needed)
 we need to be able to edit
 if you unlock note, it stays unlocked
 incorrect password error
 contents encrypted even there
 create your first note still there
-delete fails cause of decryption
-pin fails cause of decryption
+pin failure when unlocking and back locking
 content visible

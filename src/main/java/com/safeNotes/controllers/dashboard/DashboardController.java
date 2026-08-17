@@ -29,7 +29,6 @@ import com.safeNotes.models.domain.SecureNote;
 import com.safeNotes.models.domain.User;
 import com.safeNotes.repositories.SQLNoteRepository;
 import com.safeNotes.services.auth.SessionManager;
-import com.safeNotes.services.encryption.AESEncryptionService;
 import com.safeNotes.services.encryption.Argon2Hasher;
 import com.safeNotes.services.notes.NoteService;
 import com.safeNotes.services.notes.NoteServiceImpl;
@@ -55,10 +54,7 @@ public class DashboardController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         try {
 
-            byte[] salt = new AESEncryptionService().generateSalt();
-            byte[] key = new AESEncryptionService().generateKey(SessionManager.getInstance().getCurrentUser().getUserId(), salt);
-
-            noteService = new NoteServiceImpl(new SQLNoteRepository(), new Argon2Hasher(), new AESEncryptionService(), key);
+            noteService = new NoteServiceImpl(new SQLNoteRepository(), new Argon2Hasher());
 
             currentUser = SessionManager.getInstance().getCurrentUser();
             setupNotesListView();
@@ -114,7 +110,7 @@ public class DashboardController implements Initializable {
         });
 
         notesListView.getSelectionModel().selectedItemProperty().addListener((obs, oldNote, newNote) -> {
-            if (newNote != null) {
+            if (newNote != null && newNote != oldNote) {
                 previewNote(newNote);;
             }
         });
@@ -234,6 +230,7 @@ public class DashboardController implements Initializable {
 
     private void promptForPinAndOpen(SecureNote note) {
         TextInputDialog pinDialog = new TextInputDialog();
+        pinDialog.initOwner(contentPane.getScene().getWindow());
         pinDialog.initModality(Modality.APPLICATION_MODAL);
         pinDialog.setTitle("Note Locked");
         pinDialog.setHeaderText("This note is locked");
@@ -246,7 +243,7 @@ public class DashboardController implements Initializable {
                     loadNotes();
                     notesListView.getSelectionModel().clearSelection();
                     SecureNote updated = noteService.getNoteById(note.getId(), currentUser.getUserId());
-                    openNote(updated);
+                    openNoteEditor(updated);
                 }
                 else {
                     AlertHelper.showError("Incorrect Pin");
