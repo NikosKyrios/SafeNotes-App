@@ -8,13 +8,19 @@ import java.util.stream.Collectors;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -30,7 +36,6 @@ import com.safeNotes.services.notes.NoteServiceImpl;
 import com.safeNotes.app.SafeNotesApp;
 import com.safeNotes.controllers.notes.NoteEditorController;
 import com.safeNotes.utils.gui.AlertHelper;
-import com.safeNotes.utils.gui.ViewLoader;
 import javafx.scene.Parent;
 
 public class DashboardController implements Initializable {
@@ -110,7 +115,7 @@ public class DashboardController implements Initializable {
 
         notesListView.getSelectionModel().selectedItemProperty().addListener((obs, oldNote, newNote) -> {
             if (newNote != null) {
-                openNote(newNote);
+                previewNote(newNote);;
             }
         });
     }
@@ -123,19 +128,11 @@ public class DashboardController implements Initializable {
             return;
         }
 
-        welcomePane.setVisible(false);
-        Label noteContent = new Label("Content of: " + note.getTitle() + "\n\n" + note.getContent());
-
-        noteContent.setStyle("-fx-font-size: 14px; -fx-padding: 20px;");
-        contentPane.getChildren().clear();
-        contentPane.getChildren().add(noteContent);
+        openNoteEditor(note);
     }
     private void openNoteEditor(SecureNote note) {
         try {
             welcomePane.setVisible(false);
-
-            //Load note editor
-            Parent editorRoot = ViewLoader.loadParent("/com/safeNotes/views/fxml/notes/note_editor.fxml");
 
             //Get controller
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/safeNotes/views/fxml/notes/note_editor.fxml"));
@@ -150,7 +147,6 @@ public class DashboardController implements Initializable {
             AlertHelper.showError("Failed to open editor: " + e.getMessage());
             e.printStackTrace();
         }
-        loadNotes();
     }
     private void filterNotes(String text) {
         if (text == null || text.trim().isEmpty()) {
@@ -267,4 +263,80 @@ public class DashboardController implements Initializable {
         contentPane.getChildren().clear();
         contentPane.getChildren().add(welcomePane);
     }
+
+    private void previewNote(SecureNote note) {
+        welcomePane.setVisible(false);
+
+        VBox previewBox = new VBox(15);
+        previewBox.setPadding(new Insets(30));
+        previewBox.setStyle("-fx-background-color: #f8f9fa;");
+
+        // Title
+        Label titleLabel = new Label(note.getTitle());
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");        
+
+        //Metadata
+        Label metaLabel = new Label("Created: " + note.getFormattedDate());
+        metaLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d;");
+
+        //Content preview
+        TextArea contentArea = new TextArea(note.getContent());
+        contentArea.setWrapText(true);
+        contentArea.setEditable(false);
+        contentArea.setStyle("-fx-font-size: 14px;");
+        contentArea.setPrefHeight(400);
+
+        //Security indicators
+        HBox securityIcons = new HBox(10);
+        if (note.isLocked()) {
+            securityIcons.getChildren().add(new Label("🔒 Locked"));
+        }
+        if (note.isBlurred()) {
+            securityIcons.getChildren().add(new Label("👁️ Blurred"));
+        }
+        
+        //Buttons
+        HBox buttonBox = new HBox(10);
+        Button openButton = new Button("Open Note");
+        openButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;");
+        openButton.setOnAction(e -> openNote(note));     
+        
+        Button deleteButton = new Button("🗑️ Delete");
+        deleteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;");
+        deleteButton.setVisible(!note.isLocked());
+        deleteButton.setOnAction(e -> {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Delete Note");
+            confirm.setHeaderText("Delete: " + note.getTitle());
+            confirm.setContentText("Are you sure?");
+            confirm.initOwner(contentPane.getScene().getWindow());
+            confirm.initModality(Modality.APPLICATION_MODAL);
+
+            confirm.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    try {
+                        noteService.deleteNote(note.getId(), currentUser.getUserId());
+                        loadNotes();
+                        showWelcomePane();
+                        AlertHelper.showSuccess("Note deleted.");
+                    }
+                    catch (Exception ex) {
+                        AlertHelper.showError("Failed to delete: " + ex.getMessage());
+                    }
+                }
+            });
+
+        });
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        buttonBox.getChildren().addAll(openButton, spacer, deleteButton);
+        previewBox.getChildren().addAll(titleLabel, metaLabel, securityIcons, contentArea, buttonBox);
+
+        contentPane.getChildren().clear();
+        contentPane.getChildren().add(previewBox);
+    }
+
+
 }

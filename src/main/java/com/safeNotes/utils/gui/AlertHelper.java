@@ -9,8 +9,8 @@ public class AlertHelper {
 
     public static void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.initModality(Modality.APPLICATION_MODAL);
         alert.initOwner(getCurrentStage());
+        alert.initModality(Modality.APPLICATION_MODAL);
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(message);
@@ -19,8 +19,8 @@ public class AlertHelper {
 
     public static void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.initModality(Modality.APPLICATION_MODAL);
         alert.initOwner(getCurrentStage());
+        alert.initModality(Modality.APPLICATION_MODAL);
         alert.setTitle("Success");
         alert.setHeaderText(null);
         alert.setContentText(message);
@@ -29,8 +29,8 @@ public class AlertHelper {
     
     public static void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.initModality(Modality.APPLICATION_MODAL);
         alert.initOwner(getCurrentStage());
+        alert.initModality(Modality.APPLICATION_MODAL);
         alert.setTitle("Information");
         alert.setHeaderText(null);
         alert.setContentText(message);
