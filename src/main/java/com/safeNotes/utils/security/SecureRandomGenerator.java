@@ -15,4 +15,11 @@ public class SecureRandomGenerator {
             throw new HashingException("Failed to generate salt", e);
         }
     }
+
+    public static byte[] generateRandomBytes(int length) {
+        byte[] bytes = new byte[length];
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextBytes(bytes);
+        return bytes;
+    }
 }

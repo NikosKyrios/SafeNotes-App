@@ -8,6 +8,7 @@ import com.safeNotes.models.domain.SecureNote;
 import com.safeNotes.models.domain.User;
 import com.safeNotes.repositories.SQLNoteRepository;
 import com.safeNotes.services.auth.SessionManager;
+import com.safeNotes.services.encryption.AESEncryptionService;
 import com.safeNotes.services.encryption.Argon2Hasher;
 import com.safeNotes.services.notes.NoteService;
 import com.safeNotes.services.notes.NoteServiceImpl;
@@ -42,7 +43,11 @@ public class NoteEditorController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            noteService = new NoteServiceImpl(new SQLNoteRepository(), new Argon2Hasher());
+                        
+            byte[] salt = new AESEncryptionService().generateSalt();
+            byte[] key = new AESEncryptionService().generateKey(SessionManager.getInstance().getCurrentUser().getUserId(), salt);
+            
+            noteService = new NoteServiceImpl(new SQLNoteRepository(), new Argon2Hasher(), new AESEncryptionService(), key);
             currentUser = SessionManager.getInstance().getCurrentUser();
 
             setupSecurityLevels();

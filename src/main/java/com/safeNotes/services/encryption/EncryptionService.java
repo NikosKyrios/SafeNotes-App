@@ -7,4 +7,5 @@ public interface EncryptionService {
     public String decrypt(byte[] encryptedData, byte[] key) throws EncryptionException;
     public byte[] generateKey(String password, byte[] salt) throws EncryptionException;
     public byte[] generateSalt();
+
 }

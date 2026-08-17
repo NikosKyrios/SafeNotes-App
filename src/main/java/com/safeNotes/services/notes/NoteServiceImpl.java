@@ -2,21 +2,30 @@ package com.safeNotes.services.notes;
 
 import java.util.List;
 
+
+import java.util.Base64;
+
+import com.safeNotes.exceptions.EncryptionException;
 import com.safeNotes.exceptions.HashingException;
 import com.safeNotes.exceptions.NoteAccessException;
 import com.safeNotes.exceptions.StorageException;
 import com.safeNotes.models.domain.SecureNote;
 import com.safeNotes.repositories.NoteRepository;
+import com.safeNotes.services.encryption.EncryptionService;
 import com.safeNotes.services.encryption.PasswordHasher;
 
 public class NoteServiceImpl implements NoteService {
 
     private final NoteRepository noteRepository;
     private final PasswordHasher hasher;
+    private final EncryptionService encryptionService;
+    private final byte[] encryptionKey;
 
-    public NoteServiceImpl(NoteRepository noteRepository, PasswordHasher hasher) {
+    public NoteServiceImpl(NoteRepository noteRepository, PasswordHasher hasher, EncryptionService encryptionService, byte[] encryptionKey) {
         this.noteRepository = noteRepository;
         this.hasher = hasher;
+        this.encryptionService = encryptionService;
+        this.encryptionKey = encryptionKey;
     }
 
     @Override
@@ -26,6 +35,15 @@ public class NoteServiceImpl implements NoteService {
         }
 
         SecureNote note = new SecureNote(title, content, ownerId);
+
+        try {
+            byte[] encrypted = encryptionService.encrypt(content, encryptionKey);
+            note.setContent(Base64.getEncoder().encodeToString(encrypted));           
+        } 
+        catch (EncryptionException e) {
+            throw new StorageException("Failed to encrypt note", e);
+        }
+
         noteRepository.save(note);
         return note;
     }
@@ -45,6 +63,16 @@ public class NoteServiceImpl implements NoteService {
         if (!note.getOwnerId().equals(userId)) {
             throw new NoteAccessException("You don't have permission to access this note");
         }
+
+        try {
+            byte[] encrypted = Base64.getDecoder().decode(note.getContent());
+            String decrypted = encryptionService.decrypt(encrypted, encryptionKey);
+            note.setContent(decrypted);
+        }
+        catch (EncryptionException e) {
+            throw new StorageException("Failed to decrypt note", e);
+        }
+
         return note;
     }
 
@@ -56,6 +84,15 @@ public class NoteServiceImpl implements NoteService {
         note.setContent(content);
         note.updateTimestamp();
         noteRepository.update(note);
+
+        try {
+            byte[] encrypted = encryptionService.encrypt(content, encryptionKey);
+            note.setContent(Base64.getEncoder().encodeToString(encrypted));
+        } 
+        catch (EncryptionException e) {
+            throw new StorageException("Failed to encrypt note", e);
+        }
+
         return note;
     }
 
