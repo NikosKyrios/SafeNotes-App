@@ -53,6 +53,22 @@ public class NoteServiceImpl implements NoteService {
         if (ownerid == null || ownerid.trim().isEmpty()) {
             throw new StorageException("User Id cannot be empty");
         }
+
+        List<SecureNote> notes = noteRepository.findByOwner(ownerid);
+
+        for (SecureNote note : notes) {
+            try {
+                if (note.getContent() != null && !note.getContent().isEmpty()) {
+                    byte[] encrypted = Base64.getDecoder().decode(note.getContent());
+                    String decrypted = encryptionService.decrypt(encrypted, encryptionKey);
+                    note.setContent(decrypted);
+                }
+            }
+            catch (Exception e) {
+                note.setContent("[Encrypted content - unable to decrypt]");
+            }
+        }
+
         return noteRepository.findByOwner(ownerid);
     }
 
@@ -81,9 +97,7 @@ public class NoteServiceImpl implements NoteService {
             throws NoteAccessException, StorageException {
         SecureNote note = getNoteById(id, userId);
         note.setTitle(title);
-        note.setContent(content);
-        note.updateTimestamp();
-        noteRepository.update(note);
+
 
         try {
             byte[] encrypted = encryptionService.encrypt(content, encryptionKey);
@@ -93,12 +107,17 @@ public class NoteServiceImpl implements NoteService {
             throw new StorageException("Failed to encrypt note", e);
         }
 
+        note.updateTimestamp();
+        noteRepository.update(note);
         return note;
     }
 
     @Override
     public void deleteNote(String id, String userId) throws NoteAccessException, StorageException {
-        getNoteById(id, userId);
+        SecureNote note = noteRepository.findById(id).orElseThrow(() -> new NoteAccessException("Note not found"));
+        if (!note.getOwnerId().equals(userId)) {
+            throw new NoteAccessException("You don't have permission to delete this note");
+        }
         noteRepository.delete(id);
     }
 
