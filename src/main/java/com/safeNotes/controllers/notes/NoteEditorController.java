@@ -86,7 +86,17 @@ public class NoteEditorController implements Initializable {
 
         if (note != null) {
             titleField.setText(note.getTitle());
-            contentArea.setText(note.getContent());
+
+            if (note.isLocked()) {
+                contentArea.setText("🔒 This note is locked. Enter PIN to view.");
+                contentArea.setEditable(false);
+            }
+            else {
+                contentArea.setText(note.getContent());
+                contentArea.setEditable(true);
+            }
+            
+
             lockCheck.setSelected(note.isLocked());
             blurCheck.setSelected(note.isBlurred());
             securityLevelCombo.setValue(note.getSecurityLevel());
@@ -140,7 +150,7 @@ public class NoteEditorController implements Initializable {
             String pinForUse = currentPin != null ? currentPin : note.getPin();
             noteService.lockNote(note.getId(), pinForUse, currentUser.getUserId());
         }
-        
+
         //blur
         if (blurCheck.isSelected() != note.isBlurred()) {
             noteService.toggleBlur(note.getId(), currentUser.getUserId());

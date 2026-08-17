@@ -1,8 +1,6 @@
 multiple notes created
-we need to be able to edit
-if you unlock note, it stays unlocked
+we need to be able to edit security choices
 incorrect password error
-contents encrypted even there
 create your first note still there
 pin failure when unlocking and back locking
-content visible
+pin verifiable

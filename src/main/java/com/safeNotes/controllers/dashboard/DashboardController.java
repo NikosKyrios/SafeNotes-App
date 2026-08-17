@@ -287,6 +287,12 @@ public class DashboardController implements Initializable {
         HBox securityIcons = new HBox(10);
         if (note.isLocked()) {
             securityIcons.getChildren().add(new Label("🔒 Locked"));
+            contentArea.setText("🔒 This note is locked. Enter PIN to view.");
+            contentArea.setEditable(false);
+        }
+        else {
+            contentArea.setText(note.getContent());
+            contentArea.setEditable(false);
         }
         if (note.isBlurred()) {
             securityIcons.getChildren().add(new Label("👁️ Blurred"));
