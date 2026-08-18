@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -49,9 +50,11 @@ public class DashboardController implements Initializable {
     @FXML private VBox welcomePane;
     private NoteService noteService;
     private User currentUser;
+    private static DashboardController instance;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        instance = this;
         try {
 
             noteService = new NoteServiceImpl(new SQLNoteRepository(), new Argon2Hasher());
@@ -341,5 +344,8 @@ public class DashboardController implements Initializable {
         contentPane.getChildren().add(previewBox);
     }
 
+    public static void refreshNotes() {
+        if (instance != null) {Platform.runLater(() -> instance.loadNotes());}
+    }
 
 }

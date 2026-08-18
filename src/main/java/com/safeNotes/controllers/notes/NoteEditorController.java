@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import com.safeNotes.app.SafeNotesApp;
+import com.safeNotes.controllers.dashboard.DashboardController;
 import com.safeNotes.models.domain.SecureNote;
 import com.safeNotes.models.domain.User;
 import com.safeNotes.repositories.SQLNoteRepository;
@@ -127,12 +128,20 @@ public class NoteEditorController implements Initializable {
                 SecureNote newNote = noteService.createNote(title, content, currentUser.getUserId());
                 applySecuritySettings(newNote);
                 AlertHelper.showSuccess("Note created");
+                currentNote = newNote;
+
+                DashboardController.refreshNotes();
+                //loadNote(newNote);
+                SafeNotesApp.getInstance().showDashboard();
+                
             }
             else {
                 noteService.updateNote(currentNote.getId(), title, content, currentUser.getUserId());
 
                 applySecuritySettings(currentNote);
                 AlertHelper.showSuccess("Note updated");
+                DashboardController.refreshNotes();
+                SafeNotesApp.getInstance().showDashboard();
             }
 
         }
