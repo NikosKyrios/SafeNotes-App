@@ -51,6 +51,9 @@ public class DashboardController implements Initializable {
     private NoteService noteService;
     private User currentUser;
     private static DashboardController instance;
+    @FXML private Label totalNotesLabel;
+    @FXML private Label lockedNotesLabel;
+    @FXML private Label blurredNotesLabel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -178,6 +181,7 @@ public class DashboardController implements Initializable {
         try {
             List<SecureNote> notes = noteService.getNotesByUser(currentUser.getUserId());
             notesListView.getItems().setAll(notes);
+            updateStats(notes);
             updateStatus("Loaded " + notes.size() + " notes");
         }
         catch (Exception e) {
@@ -346,6 +350,16 @@ public class DashboardController implements Initializable {
 
     public static void refreshNotes() {
         if (instance != null) {Platform.runLater(() -> instance.loadNotes());}
+    }
+
+    private void updateStats(List<SecureNote> notes) {
+        int total = notes.size();
+        int locked = (int) notes.stream().filter(SecureNote::isLocked).count();
+        int blurred = (int) notes.stream().filter(SecureNote::isBlurred).count();
+
+        totalNotesLabel.setText(String.valueOf(total));
+        lockedNotesLabel.setText(String.valueOf(locked));
+        blurredNotesLabel.setText(String.valueOf(blurred));
     }
 
 }

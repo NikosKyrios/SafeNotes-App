@@ -80,7 +80,7 @@
                 <Label text="Welcome to SafeNotes" styleClass="empty-state-title"/>
                 <Label text="Select a note from the list or create a new one" 
                        styleClass="empty-state-subtitle"/>
-                <Button text="Create Your First Note" onAction="#onCreateNewNote" 
+                <Button text="Create a Note" onAction="#onCreateNewNote" 
                         styleClass="primary-button"/>
                 
                 <!-- Security Status -->
@@ -88,15 +88,15 @@
                     <Label text="🔒 Security Status" styleClass="security-info-title"/>
                     <HBox spacing="20">
                         <VBox alignment="CENTER" spacing="5">
-                            <Label text="0" styleClass="security-stat-number"/>
+                            <Label fx:id="totalNotesLabel" text="0" styleClass="security-stat-number"/>
                             <Label text="Total Notes" styleClass="security-stat-label"/>
                         </VBox>
                         <VBox alignment="CENTER" spacing="5">
-                            <Label text="0" styleClass="security-stat-number"/>
+                            <Label fx:id="lockedNotesLabel" text="0" styleClass="security-stat-number"/>
                             <Label text="Locked Notes" styleClass="security-stat-label"/>
                         </VBox>
                         <VBox alignment="CENTER" spacing="5">
-                            <Label text="0" styleClass="security-stat-number"/>
+                            <Label fx:id="blurredNotesLabel" text="0" styleClass="security-stat-number"/>
                             <Label text="Blurred Notes" styleClass="security-stat-label"/>
                         </VBox>
                     </HBox>

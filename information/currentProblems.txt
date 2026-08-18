@@ -1,6 +1,4 @@
-multiple notes created
-we need to be able to edit security choices
+way to remove the pin feature if locked
 incorrect password error
-create your first note still there
 pin failure when unlocking and back locking
 pin verifiable
