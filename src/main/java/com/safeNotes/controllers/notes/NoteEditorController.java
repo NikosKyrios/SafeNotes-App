@@ -152,11 +152,18 @@ public class NoteEditorController implements Initializable {
 
     private void applySecuritySettings(SecureNote note) throws Exception {
         if (lockCheck.isSelected()) {
-            if (currentPin == null && note.getPin() == null) {
-                return;
+            // Only lock if not already locked
+            if (!note.isLocked()) {
+                if (currentPin == null) {
+                    // No PIN stored, prompt for one
+                    promptForPinAndLock(note);
+                    return;
+                } else {
+                    // Lock with stored PIN
+                    noteService.lockNote(note.getId(), currentPin, currentUser.getUserId());
+                }
             }
-            String pinForUse = currentPin != null ? currentPin : note.getPin();
-            noteService.lockNote(note.getId(), pinForUse, currentUser.getUserId());
+            // If already locked, do nothing (don't re-lock)
         }
 
         //blur
@@ -202,11 +209,12 @@ public class NoteEditorController implements Initializable {
                     if (currentNote == null) {
                         // Store PIN temporarily for new note
                         currentPin = pin;
-                        pinStatusLabel.setText("✅ PIN set (temporary)");
+                        pinStatusLabel.setText("✅ PIN set");
                         pinStatusLabel.setVisible(true);
                         AlertHelper.showSuccess("PIN set successfully!");
                     } else {
                         // Apply to existing note
+                        currentPin = pin;
                         noteService.lockNote(currentNote.getId(), pin, currentUser.getUserId());
                         pinStatusLabel.setText("✅ PIN set and note locked");
                         pinStatusLabel.setVisible(true);
@@ -234,5 +242,31 @@ public class NoteEditorController implements Initializable {
         else {
             SafeNotesApp.getInstance().showDashboard();
         }
+    }
+
+    private void promptForPinAndLock(SecureNote note) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Set PIN");
+        dialog.setHeaderText("Set a PIN for this note");
+        dialog.setContentText("Enter 4-8 digit PIN:");
+        
+        dialog.showAndWait().ifPresent(pin -> {
+            if (pin.length() < 4 || pin.length() > 8) {
+                AlertHelper.showError("PIN must be 4-8 digits");
+                return;
+            }
+            if (!pin.matches("\\d+")) {
+                AlertHelper.showError("PIN must contain only numbers");
+                return;
+            }
+            currentPin = pin;
+            try {
+                noteService.lockNote(note.getId(), pin, currentUser.getUserId());
+                AlertHelper.showSuccess("Note locked");
+                loadNote(note);
+            } catch (Exception e) {
+                AlertHelper.showError("Failed to lock: " + e.getMessage());
+            }
+        });
     }
 }
