@@ -147,7 +147,6 @@ public class NoteEditorController implements Initializable {
         }
         catch (Exception e) {
             AlertHelper.showError("Failed to save note: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

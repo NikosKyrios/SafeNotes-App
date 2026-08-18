@@ -103,7 +103,6 @@ public class LoginController {
         } 
         catch (Exception e) {
             AlertHelper.showError("Login error: " + e.getMessage());
-            e.printStackTrace();
         }
         passwordField.clear();
     }

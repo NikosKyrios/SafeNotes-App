@@ -1,4 +1,3 @@
 way to remove the pin feature if locked
-incorrect password error
 pin failure when unlocking and back locking
 pin verifiable
