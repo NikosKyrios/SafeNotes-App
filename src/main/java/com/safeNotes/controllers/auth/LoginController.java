@@ -1,5 +1,9 @@
 package com.safeNotes.controllers.auth;
 
+import java.net.InetAddress;
+import java.security.MessageDigest;
+import java.util.Base64;
+
 import com.safeNotes.app.SafeNotesApp;
 import com.safeNotes.exceptions.StorageException;
 import com.safeNotes.services.auth.AuthenticationService;
@@ -81,7 +85,8 @@ public class LoginController {
         }
 
         try {
-            var result = authService.login(username, password);
+            String locationHash = getLocationHash();
+            var result = authService.login(username, password, locationHash);
 
             if (result.isSuccess()) {
 
@@ -129,6 +134,27 @@ public class LoginController {
         catch (Exception e) {
             System.err.println("Error navigating to dashboard" + e.getMessage());
         }
+    }
+
+    private String getLocationHash() {
+        try {
+            InetAddress ip = InetAddress.getLocalHost();
+            return hashLocation(ip.getHostAddress());
+        }
+        catch (Exception e) {
+            return "unknown";
+        }
+    }
+    private String hashLocation(String location) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(location.getBytes());
+            return Base64.getEncoder().encodeToString(hash);
+        }
+        catch (Exception e) {
+            return location;
+        }
+
     }
 
 }

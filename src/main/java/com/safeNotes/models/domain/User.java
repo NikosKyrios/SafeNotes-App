@@ -21,6 +21,7 @@ public class User {
     private boolean locationCheckEnabled;
     private List<String> trustedLocationHashes = new ArrayList<>();
 
+
     public User(String userId, String username, byte[] passwordHash, byte[] salt) {
         this.userId = userId;
         this.username = username;

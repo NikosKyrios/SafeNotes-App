@@ -1,2 +1,4 @@
-way to remove the pin feature if locked
 content not available in the db
+keystroke
+location verification
+2fa for pin recovery

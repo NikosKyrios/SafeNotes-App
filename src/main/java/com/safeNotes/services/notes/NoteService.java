@@ -26,4 +26,6 @@ public interface NoteService {
     SecureNote toggleBlur(String id, String userId) throws NoteAccessException, StorageException;
 
     boolean verifyPin(String id, String pin, String userId) throws NoteAccessException, StorageException;
+
+    void removePin(String id, String userId) throws NoteAccessException, StorageException;
 }

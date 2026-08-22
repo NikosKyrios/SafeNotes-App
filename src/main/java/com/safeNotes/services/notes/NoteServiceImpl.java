@@ -144,5 +144,17 @@ public class NoteServiceImpl implements NoteService {
             throw new StorageException("Failed to verify Pin", e);
         }
     }
+
+    @Override
+    public void removePin(String id, String userId) throws NoteAccessException, StorageException {
+        SecureNote note = noteRepository.findById(id).orElseThrow(() -> new NoteAccessException("Note not found"));
+
+        if (!note.getOwnerId().equals(userId)) {throw new NoteAccessException("You don't have permission");}
+
+        note.setPin(null);
+        note.setLocked(false);
+        note.updateTimestamp();
+        noteRepository.update(note);
+    }
     
 }

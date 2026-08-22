@@ -31,11 +31,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.sessionManager = sessionManager;
     }
 
+
     private final Map<String, Integer> locationFailures = new ConcurrentHashMap<>();
     private final Map<String, Long> blockedAccounts = new ConcurrentHashMap<>();
 
     @Override
-    public LoginResult login(String username, String password) throws AuthException {
+    public LoginResult login(String username, String password, String locationHash) throws AuthException {
 
         //1. Check if acc is blocked
         if (isAccountBlocked(username)) {
@@ -70,17 +71,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             if (!keyStrokeValid) {
                 throw new AuthException("KeyStroke pattern does not match");
             }
-        }
-        //5. Location verification
+        }*/
+       //5. Location verification
         if (user.isLocationCheckEnabled()) {
-            boolean locationValid = verifyLocation(user, request.getLocationHash());
+            boolean locationValid = verifyLocation(user, locationHash);
             if (!locationValid) {
                 trackLocationFailure(username);
                 throw new AuthException("Untrusted location. Access denied");
             }
             locationFailures.remove(username);
         }
-        */
+        
         //6. Update last login
         user.updateLastLogin();
         try {
@@ -258,5 +259,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return QRURL;
     }
 
+    @Override
+    public boolean verifyMasterPassword(String username, String password) {
+        try {
+            User user = userRepository.findByUsername(username).orElse(null);
+            if (user == null) return false;
+            return passwordHasher.verify(password, user.getPasswordHash());
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
     
 }

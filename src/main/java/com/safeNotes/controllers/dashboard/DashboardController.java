@@ -12,10 +12,13 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
@@ -29,6 +32,9 @@ import javafx.stage.Modality;
 import com.safeNotes.models.domain.SecureNote;
 import com.safeNotes.models.domain.User;
 import com.safeNotes.repositories.SQLNoteRepository;
+import com.safeNotes.repositories.SQLUserRepository;
+import com.safeNotes.services.auth.AuthenticationService;
+import com.safeNotes.services.auth.AuthenticationServiceImpl;
 import com.safeNotes.services.auth.SessionManager;
 import com.safeNotes.services.encryption.Argon2Hasher;
 import com.safeNotes.services.notes.NoteService;
@@ -54,11 +60,17 @@ public class DashboardController implements Initializable {
     @FXML private Label totalNotesLabel;
     @FXML private Label lockedNotesLabel;
     @FXML private Label blurredNotesLabel;
+    private AuthenticationService authService;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         instance = this;
         try {
+            authService = new AuthenticationServiceImpl(
+                new SQLUserRepository(), 
+                new Argon2Hasher(),
+                SessionManager.getInstance()
+            );
 
             noteService = new NoteServiceImpl(new SQLNoteRepository(), new Argon2Hasher());
 
@@ -236,31 +248,57 @@ public class DashboardController implements Initializable {
     }
 
     private void promptForPinAndOpen(SecureNote note) {
-        TextInputDialog pinDialog = new TextInputDialog();
+        Dialog<String> pinDialog = new Dialog<>();
         pinDialog.initOwner(contentPane.getScene().getWindow());
         pinDialog.initModality(Modality.APPLICATION_MODAL);
         pinDialog.setTitle("Note Locked");
         pinDialog.setHeaderText("This note is locked");
-        pinDialog.setContentText("Enter PIN to unlock:");
-
-        pinDialog.showAndWait().ifPresent(pin -> {
-            try {
-                if (noteService.verifyPin(note.getId(), pin, currentUser.getUserId())) {
-                    noteService.unlockNote(note.getId(), pin, currentUser.getUserId());
-                    loadNotes();
-                    notesListView.getSelectionModel().clearSelection();
-                    SecureNote updated = noteService.getNoteById(note.getId(), currentUser.getUserId());
-                    openNoteEditor(updated);
-                }
-                else {
-                    AlertHelper.showError("Incorrect Pin");
-                }
+        
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        
+        Label label = new Label("Enter Pin to unlock:");
+        PasswordField pinField = new PasswordField();  
+        pinField.setPromptText("Enter Pin");
+        
+        content.getChildren().addAll(label, pinField);
+        pinDialog.getDialogPane().setContent(content);
+        
+        ButtonType unlockButton = new ButtonType("Unlock", ButtonBar.ButtonData.OK_DONE);
+        ButtonType forgotButton = new ButtonType("Forgot PIN?", ButtonBar.ButtonData.HELP_2);
+        pinDialog.getDialogPane().getButtonTypes().setAll(unlockButton, forgotButton);
+        
+        Button forgotBtn = (Button) pinDialog.getDialogPane().lookupButton(forgotButton);
+        forgotBtn.setOnAction(e -> {
+            pinDialog.close();
+            handleForgotPin(note);
+        });
+        
+        pinDialog.setResultConverter(dialogButton -> {
+            if (dialogButton == unlockButton) {
+                return pinField.getText();
             }
-            catch (Exception e) {
-                AlertHelper.showError("Failed to unlock: " + e.getMessage());
+            return null;
+        });
+        
+        pinDialog.showAndWait().ifPresent(pin -> {
+            if (pin != null && !pin.trim().isEmpty()) {
+                try {
+                    if (noteService.verifyPin(note.getId(), pin, currentUser.getUserId())) {
+                        noteService.unlockNote(note.getId(), pin, currentUser.getUserId());
+                        loadNotes();
+                        notesListView.getSelectionModel().clearSelection();
+                        SecureNote updated = noteService.getNoteById(note.getId(), currentUser.getUserId());
+                        openNoteEditor(updated);
+                    } else {
+                        AlertHelper.showError("Incorrect PIN");
+                    }
+                } catch (Exception e) {
+                    AlertHelper.showError("Failed to unlock: " + e.getMessage());
+                }
             }
         });
-    }
+    } 
 
     private void showWelcomePane() {
         welcomePane.setVisible(true);
@@ -361,5 +399,51 @@ public class DashboardController implements Initializable {
         lockedNotesLabel.setText(String.valueOf(locked));
         blurredNotesLabel.setText(String.valueOf(blurred));
     }
+
+    private void handleForgotPin(SecureNote note) {
+        Dialog<String> passwordDialog = new Dialog<>();
+        passwordDialog.initOwner(contentPane.getScene().getWindow());
+        passwordDialog.initModality(Modality.APPLICATION_MODAL);
+        passwordDialog.setTitle("Verify Identity");
+        passwordDialog.setHeaderText("Enter your master password to reset Pin");
+        
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        
+        Label label = new Label("Master Password:");
+        PasswordField passwordField = new PasswordField();  
+        passwordField.setPromptText("Enter master password");
+        
+        content.getChildren().addAll(label, passwordField);
+        passwordDialog.getDialogPane().setContent(content);
+        
+        ButtonType verifyButton = new ButtonType("Verify", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        passwordDialog.getDialogPane().getButtonTypes().addAll(verifyButton, cancelButton);
+        
+        passwordDialog.setResultConverter(dialogButton -> {
+            if (dialogButton == verifyButton) {
+                return passwordField.getText();
+            }
+            return null;
+        });
+        
+        passwordDialog.showAndWait().ifPresent(masterPassword -> {
+            if (masterPassword != null && !masterPassword.trim().isEmpty()) {
+                try {
+                    if (authService.verifyMasterPassword(currentUser.getUsername(), masterPassword)) {
+                        noteService.removePin(note.getId(), currentUser.getUserId());
+                        AlertHelper.showSuccess("Pin removed. Note is now unlocked.");
+                        loadNotes();
+                        openNoteEditor(note);
+                    } else {
+                        AlertHelper.showError("Incorrect master password");
+                    }
+                } catch (Exception e) {
+                    AlertHelper.showError("Failed to reset Pin: " + e.getMessage());
+                }
+            }
+        });
+    } 
 
 }
