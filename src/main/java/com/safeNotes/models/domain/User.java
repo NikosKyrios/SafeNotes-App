@@ -37,6 +37,7 @@ public class User {
         this.autoLockMins = 15; // Default value
         this.locationCheckEnabled = false;
         this.trustedLocationHashes = new ArrayList<>();
+        
     }
 
     public User(String userId, String username, byte[] passwordHash, byte[] salt,
@@ -252,5 +253,11 @@ public class User {
                 ", createdAt=" + createdAt +
                 ", twoFactoredEnabled=" + twoFactoredEnabled +
                 '}';
+    }
+
+    public void removeTrustedLocation(String locationHash) {
+        if (trustedLocationHashes != null) {
+            trustedLocationHashes.remove(locationHash);
+        }
     }
 }

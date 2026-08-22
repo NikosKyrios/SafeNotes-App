@@ -1,5 +1,7 @@
 package com.safeNotes.services.auth;
 
+import java.util.List;
+
 import com.safeNotes.exceptions.AuthException;
 import com.safeNotes.models.dto.LoginResult;
 import com.safeNotes.models.dto.RegistrationRequest;
@@ -17,5 +19,9 @@ public interface AuthenticationService {
     void addTrusterLocation(String userId, String locationHash) throws AuthException;
 
     boolean verifyMasterPassword(String username, String password);
+
+    List<String> getTrustedLocations(String id) throws AuthException;
+    void addTrustedLocation(String userId, String locationHash) throws AuthException;
+    void removeTrustedLocation(String userId, String locationHash) throws AuthException;
 
 }

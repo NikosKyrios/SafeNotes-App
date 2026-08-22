@@ -1,6 +1,9 @@
 package com.safeNotes.controllers.dashboard;
 
+import java.net.InetAddress;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -14,6 +17,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -21,7 +25,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -61,6 +64,10 @@ public class DashboardController implements Initializable {
     @FXML private Label lockedNotesLabel;
     @FXML private Label blurredNotesLabel;
     private AuthenticationService authService;
+    @FXML private Label currentLocationLabel;
+    @FXML private CheckBox trustCurrentCheck;
+    @FXML private TextField locationInput;
+    @FXML private ListView<String> trustedLocationsList;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -232,7 +239,27 @@ public class DashboardController implements Initializable {
     }
     @FXML
     private void onSecuritySettings() {
-        AlertHelper.showInfo("Security settings will be available later");
+        try {
+            List<String> locations = authService.getTrustedLocations(currentUser.getUserId());
+            StringBuilder sb = new StringBuilder("Trusted locations:\n");
+            if (locations.isEmpty()) {
+                sb.append("No trusted locations added yet.");
+            }
+            else {
+                for (int i = 0; i < locations.size(); i++) {
+                    sb.append((i + 1)).append(". ").append(locations.get(i)).append("\n");
+                }
+            }
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Trusted Locations");
+            alert.setHeaderText("Your trusted locations");
+            alert.setContentText(sb.toString());
+            alert.showAndWait();
+        }
+        catch (Exception e) {
+            AlertHelper.showError("Failed to load locations " + e.getMessage());
+        }
     } 
 
     private void goToLogin() {
@@ -446,4 +473,130 @@ public class DashboardController implements Initializable {
         });
     } 
 
+
+    /*@FXML
+    private void onAddLocation() {
+        String ip = locationInput.getText().trim();
+        if (ip.isEmpty()) {
+            AlertHelper.showError("Please enter an IP address");
+            return;
+        }
+        try {
+            String locationHash = hashLocation(ip);
+            authService.addTrustedLocation(currentUser.getUserId(), locationHash);
+            AlertHelper.showSuccess("Location added to trusted list");
+            refreshTrustedLocationsList();
+        }
+        catch (Exception e) {
+            AlertHelper.showError("Failed to add location: " + e.getMessage());
+        }
+    }*/
+  
+    /*@FXML
+    private void onRemoveLocation() {
+        String selected = trustedLocationsList.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            AlertHelper.showError("Please select a location to remove");
+            return;
+        }
+        try {
+            authService.removeTrustedLocation(currentUser.getUserId(), selected);
+            AlertHelper.showSuccess("Location removed");
+            refreshTrustedLocationsList();
+        } catch (Exception e) {
+            AlertHelper.showError("Failed to remove location: " + e.getMessage());
+        }
+    }*/
+
+    private String hashLocation(String location) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(location.getBytes());
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (Exception e) {
+            return location;
+        }
+    }
+    @FXML
+    private void onManageLocations() {
+        // Create a new dialog/window for managing locations
+        Dialog<Void> locationDialog = new Dialog<>();
+        locationDialog.initOwner(contentPane.getScene().getWindow());
+        locationDialog.initModality(Modality.APPLICATION_MODAL);
+        locationDialog.setTitle("Manage Trusted Locations");
+        locationDialog.setHeaderText("Add or remove trusted locations"); 
+        ListView<String> locationsListView = new ListView<>();
+        
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        
+        // Current location
+        HBox currentBox = new HBox(10);
+        Label currentLabel = new Label("Current location:");
+        Label currentLocationLabel = new Label(getCurrentLocation());
+        CheckBox trustCurrentCheck = new CheckBox("Trust this location");
+        currentBox.getChildren().addAll(currentLabel, currentLocationLabel, trustCurrentCheck);
+        
+        // Add location
+        HBox addBox = new HBox(10);
+        TextField locationInput = new TextField();
+        locationInput.setPromptText("Enter IP address");
+        Button addButton = new Button("Add Location");
+        addButton.setOnAction(e -> {
+            String ip = locationInput.getText().trim();
+            if (!ip.isEmpty()) {
+                try {
+                    String hash = hashLocation(ip);
+                    authService.addTrustedLocation(currentUser.getUserId(), hash);
+                    AlertHelper.showSuccess("Location added");
+                    refreshTrustedLocationsList(locationsListView);
+                } catch (Exception ex) {
+                    AlertHelper.showError("Failed to add: " + ex.getMessage());
+                }
+            }
+        });
+        addBox.getChildren().addAll(locationInput, addButton);
+        
+        // Trusted locations list
+        refreshTrustedLocationsList(locationsListView);
+        
+        Button removeButton = new Button("Remove Selected");
+        removeButton.setOnAction(e -> {
+            String selected = locationsListView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                try {
+                    authService.removeTrustedLocation(currentUser.getUserId(), selected);
+                    AlertHelper.showSuccess("Location removed");
+                    refreshTrustedLocationsList(locationsListView);
+                } catch (Exception ex) {
+                    AlertHelper.showError("Failed to remove: " + ex.getMessage());
+                }
+            }
+        });
+        
+        Button closeButton = new Button("Close");
+        closeButton.setOnAction(e -> locationDialog.close());
+        
+        content.getChildren().addAll(currentBox, addBox, locationsListView, removeButton, closeButton);
+        locationDialog.getDialogPane().setContent(content);
+        locationDialog.showAndWait();
+    }
+
+    private void refreshTrustedLocationsList(ListView<String> listView) {
+        try {
+            List<String> locations = authService.getTrustedLocations(currentUser.getUserId());
+            listView.getItems().setAll(locations);
+        } catch (Exception e) {
+            AlertHelper.showError("Failed to refresh: " + e.getMessage());
+        }
+    }
+
+    private String getCurrentLocation() {
+        try {
+            InetAddress ip = InetAddress.getLocalHost();
+            return ip.getHostAddress();
+        } catch (Exception e) {
+            return "Unknown";
+        }
+    }
 }

@@ -195,7 +195,7 @@ public class RegisterController {
         request.setPassword(passwordField.getText());
         request.setEnableKeyStroke(enableKeyStrokeCheck.isSelected());
         request.setEnable2FA(enableTwoFactorCheck.isSelected());
-        request.setEnableLocationCheck(false);
+        request.setEnableLocationCheck(true);
         request.setAutoLockEnabled(enableAutoLockCheck.isSelected());
         request.setAutoLockMins(15);
         request.setTypingSamples(typingSamples);

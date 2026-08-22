@@ -1,5 +1,6 @@
 package com.safeNotes.services.auth;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -271,4 +272,39 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
     
+    @Override
+    public List<String> getTrustedLocations(String userid) throws AuthException {
+        try {
+            User user = userRepository.findByUsername(userid).orElseThrow(() -> new AuthException("User not found"));
+            return user.getTrustedLocationHashes();
+        }
+        catch (StorageException e) {
+            throw new AuthException("Failed to get trusted locations", e);
+        }
+    }
+
+    @Override
+    public void addTrustedLocation(String userId, String locationHash) throws AuthException {
+        try {
+            User user = userRepository.findByUsername(userId).orElseThrow(() -> new AuthException("User not found"));
+            user.addTrustedLocation(locationHash);
+            userRepository.save(user);
+        }
+        catch (StorageException e) {
+            throw new AuthException("Failed to add trusted location", e);
+        }
+    }
+
+    @Override
+    public void removeTrustedLocation(String userId, String locationHash) throws AuthException {
+        try {
+            User user = userRepository.findByUsername(userId)
+                .orElseThrow(() -> new AuthException("User not found"));
+            
+            user.removeTrustedLocation(locationHash);
+            userRepository.save(user);
+        } catch (StorageException e) {
+            throw new AuthException("Failed to remove trusted location", e);
+        }
+    }
 }

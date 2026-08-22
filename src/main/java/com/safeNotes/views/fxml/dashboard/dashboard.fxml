@@ -32,6 +32,7 @@
                 <items>
                     <MenuItem text = "Security Settings" onAction = "#onSecuritySettings"/>
                     <MenuItem text = "Account Settings" onAction = "#onAccountSettings"/>
+                    <MenuItem text="Manage Trusted Locations" onAction="#onManageLocations"/>
                     <SeparatorMenuItem/>
                     <MenuItem text = "Lock App" onAction = "#onLockApp"/>
                     <MenuItem text = "Logout" onAction = "#onLogout"/>

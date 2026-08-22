@@ -2,3 +2,4 @@ content not available in the db
 keystroke
 location verification
 2fa for pin recovery
+when cancel note, exit??
