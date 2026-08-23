@@ -43,7 +43,7 @@ src/main/java/com/safenotes/
 │       ├── EncryptionAlgorithm.java # AES256, CHACHA20, etc.
 │       └── AuthMethod.java          # PASSWORD, BIOMETRIC, 2FA, etc.
 │
-├── services/                        # Business logic layer - where the magic happens
+├── services/                        # Business logic layer 
 │   ├── auth/                        # Authentication services
 │   │   ├── AuthenticationService.java (interface)    # Contract for auth operations
 │   │   ├── AuthenticationServiceImpl.java            # Actual auth implementation
@@ -60,7 +60,7 @@ src/main/java/com/safenotes/
 │   │   ├── NoteServiceImpl.java      # Actual note operations
 │   │   ├── NoteSecurityService.java  # Applies security to notes (blur, lock, etc.)
 │   │   └── NoteSearchService.java    # Encrypted search functionality
-│   ├── biometric/                   # Your keystroke dynamics feature
+│   ├── biometric/                   # Keystroke dynamics feature
 │   │   ├── KeystrokeService.java     # Tracks typing speed/timing
 │   │   ├── TypingProfileAnalyzer.java # Analyzes patterns, calculates averages
 │   │   └── BehavioralAnalyticsService.java # Detects anomalous behavior
@@ -70,7 +70,7 @@ src/main/java/com/safenotes/
 │   └── storage/                     # Data persistence
 │       ├── DataStorageService.java (interface)       # Storage contract
 │       ├── LocalFileStorageService.java # Saves to local files (encrypted)
-│       └── DatabaseService.java      # SQLite/PostgreSQL storage
+│       └── DatabaseService.java      # SQLite storage
 │
 ├── repositories/                    # Data access layer - talks to storage
 │   ├── UserRepository.java (interface)               # User CRUD operations
@@ -84,7 +84,7 @@ src/main/java/com/safenotes/
 ├── utils/                           # Helper classes - reusable utilities
 │   ├── validators/                  # Input validation
 │   │   ├── PasswordValidator.java   # Validates password strength
-│   │   ├── InputSanitizer.java      # Prevents XSS/SQL injection
+│   │   ├── InputSanitizer.java      # Prevents SQL injection
 │   │   └── SecurityValidator.java   # Validates security settings
 │   ├── security/                    # Security utilities
 │   │   ├── SecureRandomGenerator.java # Cryptographically secure random numbers
@@ -113,7 +113,7 @@ src/main/java/com/safenotes/
 │   │   │   ├── note_security.fxml   # Note security settings UI
 │   │   │   └── note_settings.fxml   # Note metadata UI
 │   │   └── security/                # Security feature screens
-│   │       ├── biometric_setup.fxml # Keystroke dynamics setup wizard
+│   │       ├── biometric_setup.fxml # Keystroke dynamics setup 
 │   │       ├── pin_entry.fxml       # PIN entry dialog
 │   │       └── security_settings.fxml # Global security preferences
 │   └── css/                         # Styling
