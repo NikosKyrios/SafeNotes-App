@@ -1,5 +1,4 @@
 content not available in the db
 keystroke
 location verification (user not found for everything i do)
-2fa for pin recovery
 when cancel note, exit??
