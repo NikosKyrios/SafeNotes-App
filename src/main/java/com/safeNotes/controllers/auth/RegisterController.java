@@ -47,6 +47,7 @@ public class RegisterController {
     @FXML private CheckBox enableTwoFactorCheck;
     @FXML private CheckBox enableAutoLockCheck;
     @FXML private CheckBox termsCheck;
+    @FXML private CheckBox enableLocationCheck;
 
     //password strength
     @FXML private VBox passwordStrengthBox;
@@ -195,10 +196,11 @@ public class RegisterController {
         request.setPassword(passwordField.getText());
         request.setEnableKeyStroke(enableKeyStrokeCheck.isSelected());
         request.setEnable2FA(enableTwoFactorCheck.isSelected());
-        request.setEnableLocationCheck(true);
+        request.setEnableLocationCheck(false);
         request.setAutoLockEnabled(enableAutoLockCheck.isSelected());
         request.setAutoLockMins(15);
         request.setTypingSamples(typingSamples);
+        request.setEnableLocationCheck(enableLocationCheck.isSelected());
 
         try {
             RegistrationResult result = authenticationService.register(request);

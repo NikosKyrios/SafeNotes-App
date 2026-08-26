@@ -1,5 +1,6 @@
 package com.safeNotes.services.auth;
 
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -73,7 +74,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 throw new AuthException("KeyStroke pattern does not match");
             }
         }*/
-       //5. Location verification
+        //5. Location verification
         if (user.isLocationCheckEnabled()) {
             boolean locationValid = verifyLocation(user, locationHash);
             if (!locationValid) {
@@ -82,7 +83,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             }
             locationFailures.remove(username);
         }
-        
+                
         //6. Update last login
         user.updateLastLogin();
         try {
@@ -97,27 +98,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         sessionManager.setCurrentUser(user);
 
         return new LoginResult(true, false, user.getUserId(), sessionId, "Login successfull", null);
-    }
-
-    @Override
-    public void addTrusterLocation(String userId, String locationHash) throws AuthException {
-        User user;
-        try {
-            user = userRepository.findByUsername(userId).orElse(null);
-        }
-        catch (StorageException e) {
-            throw new AuthException("Location not found");
-        }
-        if (user == null) {throw new AuthException("User not found");}
-
-        user.addTrustedLocation(locationHash);
-
-        try {
-            userRepository.save(user);
-        } 
-        catch (StorageException e) {
-            throw new AuthException("Failed to save trusted location", e);
-        }
     }
 
     @Override
@@ -234,7 +214,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private boolean verifyLocation(User user, String locationHash) {
         if (locationHash == null) return false;
-        return user.getTrustedLocationHashes().contains(locationHash);
+        return user.getTrustedLocationMap().values().contains(locationHash);
     }
 
     private void trackLocationFailure(String username) {
@@ -273,10 +253,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
     
     @Override
-    public List<String> getTrustedLocations(String userid) throws AuthException {
+    public List<String> getTrustedLocations(String username) throws AuthException {
         try {
-            User user = userRepository.findByUsername(userid).orElseThrow(() -> new AuthException("User not found"));
-            return user.getTrustedLocationHashes();
+            User user = userRepository.findByUsername(username).orElseThrow(() -> new AuthException("User not found"));
+            return user.getTrustedLocationIPs();
         }
         catch (StorageException e) {
             throw new AuthException("Failed to get trusted locations", e);
@@ -284,10 +264,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void addTrustedLocation(String userId, String locationHash) throws AuthException {
+    public void addTrustedLocation(String username, String ip) throws AuthException {
         try {
-            User user = userRepository.findByUsername(userId).orElseThrow(() -> new AuthException("User not found"));
-            user.addTrustedLocation(locationHash);
+            User user = userRepository.findByUsername(username).orElseThrow(() -> new AuthException("User not found"));
+            user.addTrustedLocation(ip);
             userRepository.save(user);
         }
         catch (StorageException e) {
@@ -296,15 +276,47 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void removeTrustedLocation(String userId, String locationHash) throws AuthException {
+    public void removeTrustedLocation(String username, String ip) throws AuthException {
         try {
-            User user = userRepository.findByUsername(userId)
+            User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AuthException("User not found"));
             
-            user.removeTrustedLocation(locationHash);
+            user.removeTrustedLocation(ip);
             userRepository.save(user);
         } catch (StorageException e) {
             throw new AuthException("Failed to remove trusted location", e);
+        }
+    }
+
+    private String getCurrentLocation() {
+        try {
+            InetAddress ip = InetAddress.getLocalHost();
+            return ip.getHostAddress();
+        } 
+        catch (Exception e) {
+            return "127.0.0.1";
+        }
+    }
+
+    @Override
+    public List<String> getTrustedLocationHashes(String username) throws AuthException {
+        try {
+            User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AuthException("User not found"));
+            return user.getTrustedLocationHashes();
+        } catch (StorageException e) {
+            throw new AuthException("Failed to get trusted location hashes", e);
+        }
+    }
+
+    @Override
+    public Map<String, String> getTrustedLocationMap(String username) throws AuthException {
+        try {
+            User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AuthException("User not found"));
+            return user.getTrustedLocationMap();
+        } catch (StorageException e) {
+            throw new AuthException("Failed to get trusted location map", e);
         }
     }
 }

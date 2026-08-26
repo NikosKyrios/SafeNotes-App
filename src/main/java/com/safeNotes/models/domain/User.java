@@ -1,9 +1,13 @@
 package com.safeNotes.models.domain;
 
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class User {
     private String userId;
@@ -19,7 +23,7 @@ public class User {
     private boolean autoLockEnabled;
     private int autoLockMins;
     private boolean locationCheckEnabled;
-    private List<String> trustedLocationHashes = new ArrayList<>();
+    private Map<String, String> trustedLocations = new HashMap<>();
 
 
     public User(String userId, String username, byte[] passwordHash, byte[] salt) {
@@ -36,14 +40,14 @@ public class User {
         this.autoLockEnabled = false;
         this.autoLockMins = 15; // Default value
         this.locationCheckEnabled = false;
-        this.trustedLocationHashes = new ArrayList<>();
+        this.trustedLocations = new HashMap<>();
         
     }
 
     public User(String userId, String username, byte[] passwordHash, byte[] salt,
             LocalDateTime createdAt, boolean twoFactoredEnabled,
             boolean requireKeystrokeAuth, boolean autoLockEnabled, int autoLockMins,
-            boolean locationCheckEnabled, List<String> trustedLocationHashes) {
+            boolean locationCheckEnabled, Map<String, String> trustedLocations) {
         this.userId = userId;
         this.username = username;
         this.passwordHash = passwordHash != null ? Arrays.copyOf(passwordHash, passwordHash.length) : null;
@@ -57,12 +61,12 @@ public class User {
         this.autoLockEnabled = autoLockEnabled;
         this.autoLockMins = autoLockMins;
         this.locationCheckEnabled = locationCheckEnabled;
-        this.trustedLocationHashes = trustedLocationHashes != null ? new ArrayList<>(trustedLocationHashes) : new ArrayList<>();
+        this.trustedLocations = trustedLocations != null ? new HashMap<>(trustedLocations) : new HashMap<>();
     }
 
     public User() {
         this.createdAt = LocalDateTime.now();
-        this.trustedLocationHashes = new ArrayList<>();
+        this.trustedLocations = new HashMap<>();
     }
 
     public String getUserId() {
@@ -188,21 +192,6 @@ public class User {
         this.locationCheckEnabled = locationCheckEnabled;
     }
 
-    public List<String> getTrustedLocationHashes() {
-        return new ArrayList<>(trustedLocationHashes != null ? trustedLocationHashes : List.of());
-    }
-
-    public void addTrustedLocation(String location) {
-        if (location == null || location.isBlank()) {
-            return;
-        }
-        if (trustedLocationHashes == null) {
-            trustedLocationHashes = new ArrayList<>();
-        }
-        if (!trustedLocationHashes.contains(location)) {
-            trustedLocationHashes.add(location);
-        }
-    }
 
     public void clearSensitiveData() {
         if (passwordHash != null) {
@@ -236,7 +225,7 @@ public class User {
         copy.autoLockEnabled = this.autoLockEnabled;
         copy.autoLockMins = this.autoLockMins;
         copy.locationCheckEnabled = this.locationCheckEnabled;
-        copy.trustedLocationHashes = this.trustedLocationHashes != null ? new ArrayList<>(this.trustedLocationHashes) : new ArrayList<>();
+        copy.trustedLocations = this.trustedLocations != null ? new HashMap<>(this.trustedLocations) : new HashMap<>();
         return copy;
     }
 
@@ -255,9 +244,40 @@ public class User {
                 '}';
     }
 
-    public void removeTrustedLocation(String locationHash) {
-        if (trustedLocationHashes != null) {
-            trustedLocationHashes.remove(locationHash);
+    public void addTrustedLocation(String ip) {
+        if (ip == null || ip.isBlank()) return;
+        String hash = hashLocation(ip);
+        if (!trustedLocations.containsKey(ip)) trustedLocations.put(ip, hash);
+    }
+
+    public List<String> getTrustedLocationIPs() {
+        return new ArrayList<>(trustedLocations.keySet());
+    }
+
+    public boolean hasTrustedLocation(String ip) {
+        return trustedLocations.containsKey(ip);
+    }
+
+    public void removeTrustedLocation(String ip) {
+        trustedLocations.remove(ip);
+    }
+
+    private String hashLocation(String location) {
+        try {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(location.getBytes());
+        return Base64.getEncoder().encodeToString(hash);
         }
+        catch (Exception e) {
+            return location;
+        }
+    }
+
+    public Map<String, String> getTrustedLocationMap() {
+        return new HashMap<>(trustedLocations);
+    }
+
+    public List<String> getTrustedLocationHashes() {
+        return new ArrayList<>(trustedLocations.values());
     }
 }

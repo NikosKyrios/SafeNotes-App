@@ -87,6 +87,10 @@
                         
                         <!-- Auto Lock -->
                         <CheckBox fx:id="enableAutoLockCheck" text="Auto-lock after inactivity"/>
+
+                        <!-- Location Verification -->
+                        <CheckBox fx:id="enableLocationCheck" text="Enable Location Verification" selected="false"/>
+                        
                     </VBox>
                     
                     <!-- Terms & Conditions -->

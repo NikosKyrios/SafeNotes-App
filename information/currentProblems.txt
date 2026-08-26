@@ -1,4 +1,5 @@
 content not available in the db
 keystroke
-location verification (user not found for everything i do)
 when cancel note, exit??
+infinite amount of times the extra loc for trusted
+

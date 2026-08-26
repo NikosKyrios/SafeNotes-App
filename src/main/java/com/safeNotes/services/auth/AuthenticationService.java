@@ -1,6 +1,7 @@
 package com.safeNotes.services.auth;
 
 import java.util.List;
+import java.util.Map;
 
 import com.safeNotes.exceptions.AuthException;
 import com.safeNotes.models.dto.LoginResult;
@@ -16,12 +17,14 @@ public interface AuthenticationService {
 
     boolean validatePasswordStrength(String password);
     boolean isUsernameAvailable(String username);
-    void addTrusterLocation(String userId, String locationHash) throws AuthException;
 
     boolean verifyMasterPassword(String username, String password);
 
-    List<String> getTrustedLocations(String id) throws AuthException;
-    void addTrustedLocation(String userId, String locationHash) throws AuthException;
-    void removeTrustedLocation(String userId, String locationHash) throws AuthException;
+    List<String> getTrustedLocations(String username) throws AuthException;
+    void addTrustedLocation(String username, String ip) throws AuthException;
+    void removeTrustedLocation(String username, String ip) throws AuthException;
+
+    List<String> getTrustedLocationHashes(String username) throws AuthException;
+    Map<String, String> getTrustedLocationMap(String username) throws AuthException;
 
 }

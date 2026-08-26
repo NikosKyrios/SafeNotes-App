@@ -1,2 +1,3 @@
 2fa for pin recovery
 blurred note -> not even name visible, if you click, only when created is visible. Requires pin
+2fa for opening security settings
